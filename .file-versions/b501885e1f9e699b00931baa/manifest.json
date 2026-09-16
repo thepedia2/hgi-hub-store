@@ -1,0 +1,52 @@
+{
+  "schemaVersion": 2,
+  "fileName": "register.html",
+  "currentVersionId": "fbf433ae-5e56-4a05-9bf4-7638d87cee90",
+  "entries": [
+    {
+      "id": "097e4380-56f8-42e3-af8d-adcad75786a7",
+      "fileName": "register.html",
+      "version": 1,
+      "label": "Version 1",
+      "createdAt": 1788710252467,
+      "source": "ai",
+      "prompt": "sekarang bikin frontend register nya",
+      "size": 9678,
+      "mime": "text/html; charset=utf-8",
+      "kind": "html",
+      "contentPath": "0001-097e4380-56f8-42e3-af8d-adcad75786a7.html",
+      "promptSource": "message",
+      "contentDigest": "1650889d9639a6777401ba00228c74e1c4670a44573cd13d4920eb67d1497e12"
+    },
+    {
+      "id": "c59071ce-d098-4849-995f-34dcc1adcce9",
+      "fileName": "register.html",
+      "version": 2,
+      "label": "Version 2",
+      "createdAt": 1788710794151,
+      "source": "ai",
+      "prompt": "[form answers — backend-register-setup]\n- Backend yang digunakan: Node.js + Express (Recommended) [value: node_express]\n- Database: SQLite (Recommended) [value: sqlite]\n- Layanan verifikasi email: SMTP email (Recommended) [value: smtp]",
+      "size": 9948,
+      "mime": "text/html; charset=utf-8",
+      "kind": "html",
+      "contentPath": "0002-c59071ce-d098-4849-995f-34dcc1adcce9.html",
+      "promptSource": "message",
+      "contentDigest": "576581fa13e3169381f0050df501aa0d3ff984a8b2712ba01684a67fb272bcee"
+    },
+    {
+      "id": "fbf433ae-5e56-4a05-9bf4-7638d87cee90",
+      "fileName": "register.html",
+      "version": 3,
+      "label": "Version 3",
+      "createdAt": 1788750001917,
+      "source": "ai",
+      "prompt": "konekan localhost\\",
+      "size": 9948,
+      "mime": "text/html; charset=utf-8",
+      "kind": "html",
+      "contentPath": "0003-fbf433ae-5e56-4a05-9bf4-7638d87cee90.html",
+      "contentDigest": "bd948de18f119ed54229b246a008ebf8babc8e02d207f1da3204312bec883302",
+      "promptSource": "message"
+    }
+  ]
+}
