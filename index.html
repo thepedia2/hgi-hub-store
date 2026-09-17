@@ -151,8 +151,8 @@ Admin akan menanggapi pesan Anda untuk konfirmasi data, negosiasi harga, dan mel
         const lines=is17BPackage(window.hgiOrderCart)?'- Paket 1,7B: 2 HU + 1 Kucing + 1 Zeus = Rp99.000':items.map(([product,quantity])=>{const card=[...document.querySelectorAll('.card')].find(item=>item.querySelector('h3')?.textContent.trim()===product),price=card?.querySelector('.price strong')?.textContent.trim()||'Menunggu konfirmasi admin',totalValue=priceFor(product,quantity,price),total=totalValue?new Intl.NumberFormat('id-ID',{style:'currency',currency:'IDR',maximumFractionDigits:0}).format(totalValue):'Dikonfirmasi admin';return '- '+product+' x '+quantity+' = '+total}).join('\n');
         const grandTotal=items.reduce((sum,[product,quantity])=>{const card=[...document.querySelectorAll('.card')].find(item=>item.querySelector('h3')?.textContent.trim()===product),price=card?.querySelector('.price strong')?.textContent.trim()||'',value=priceFor(product,quantity,price);return sum+(value||0)},0),finalTotal=is17BPackage(window.hgiOrderCart)?99000:grandTotal,text='Halo Admin HGI Hub, saya ingin order beberapa produk.\n\n'+lines+'\n\nTotal harga: '+(finalTotal?new Intl.NumberFormat('id-ID',{style:'currency',currency:'IDR',maximumFractionDigits:0}).format(finalTotal):'Dikonfirmasi admin')+'\nID game penerima: '+gameId+'\nNickname di game: '+nickname+'\nMetode pembayaran: '+payment+'\n\nMohon dibantu cek stok dan proses pembayaran.';
         message.textContent='Pesanan siap dikirim ke WhatsApp.';
-        window.open('https://wa.me/?text='+encodeURIComponent(text),'_blank','noopener');
-      };
+const whatsappText='```'+text+'```';
+window.location.href='https://web.whatsapp.com/send?phone=6288707646282&text='+encodeURIComponent(whatsappText);      };
     })();
   </script>
 
@@ -161,7 +161,7 @@ Admin akan menanggapi pesan Anda untuk konfirmasi data, negosiasi harga, dan mel
       const categorySection=document.querySelector('[data-od-id="categories"]');if(!categorySection)return;
       const items=[['Raka','1 HU','baru saja'],['Dina','1 Kucing','2 menit lalu'],['Bayu','1 Zeus','4 menit lalu'],['Salsa','1 HU + 1 Kucing','6 menit lalu']];let index=0;
       const panel=document.createElement('div');panel.className='demo-activity';panel.setAttribute('data-od-id','demo-live-orders');panel.setAttribute('role','status');panel.setAttribute('aria-live','polite');panel.innerHTML='<div class="demo-activity-badge"><span class="demo-activity-dot"></span>Aktivitas preview</div><div class="demo-activity-copy"></div><div class="demo-activity-time"></div>';categorySection.appendChild(panel);
-      const render=()=>{const item=items[index%items.length];panel.querySelector('.demo-activity-copy').innerHTML='<strong>'+item[0]+' memesan '+item[1]+'</strong><span>Contoh aktivitas untuk tampilan toko</span>';panel.querySelector('.demo-activity-time').textContent=item[2];index++};render();window.setInterval(render,4200);
+      const render=()=>{const item=items[index%items.length];panel.querySelector('.demo-activity-copy').innerHTML='<strong>'+item[0]+' memesan '+item[1]+'</strong><span>Contoh aktivitas untuk tampilan toko</span>';panel.querySelector('.demo-activity-time').textContent=item[2];index++};render()
     })();
   </script>
   <script>
@@ -259,25 +259,95 @@ Admin akan menanggapi pesan Anda untuk konfirmasi data, negosiasi harga, dan mel
     };
     const productSummary=cart=>Object.entries(cart||{}).filter(([,quantity])=>quantity>0).map(([product,quantity])=>`${quantity} ${productLabel[product]||product}`).join(', ');
     const totalLabel=(cart,package17B)=>{if(package17B)return '1.7B';const totalM=(cart['100M Voucher HGI (HU)']||0)*100+(cart['500M Voucher HGI (KUCING)']||0)*500+(cart['1B Voucher HGI (ZEUS)']||0)*1000;if(totalM>=1000)return `${(totalM/1000).toFixed(1).replace(/\.0$/,'')}B`;return `${totalM}M`};
-    const sendToAdmin=text=>{const compact=text.replace('🔔 ORDER • TOP UP HGI HUB','[ORDER] - TOP UP HGI HUB').replace('💸 SELL • HGI HUB','[SELL] - HGI HUB').replace('🔔 DETAIL TRANSAKSI','[DETAIL TRANSAKSI]').replace('📋 *DETAIL TRANSAKSI*','[DETAIL TRANSAKSI]').replace('👤 DATA PLAYER','[DATA PLAYER]').replace('👤 *DATA PLAYER*','[DATA PLAYER]').replace('💳 PEMBAYARAN','[PEMBAYARAN]').replace('💳 *PEMBAYARAN*','[PEMBAYARAN]').replace('Halo Admin HGI Hub 🔔','Halo Admin HGI Hub').replace('HGI Hub • Layanan Jual Beli Chip Game','HGI Hub - Layanan Jual Beli Chip Game').replace(/[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}*_]/gu,'').replace(/•/g,'-').replace(/^Produk\s*:\s*/m,'Produk         : ').replace(/^Total\s*:\s*/m,'Total             : ').replace(/^Harga Total\s*:\s*/m,'Harga Total    : ').replace(/^ID Player\s*:\s*/m,'ID Player         : ').replace(/^Nickname\s*:\s*/m,'Nickname       : ').replace(/^Kode Unik\s*:\s*/m,'Kode Unik     : ').replace(/^Total Bayar\s*:\s*/m,'Total Bayar    : ').replace(/\n{3,}/g,'\n\n');window.open('https://wa.me/?text='+encodeURIComponent(compact),'_blank','noopener')};
-    window.submitProductOrder=function(){
-      const gameId=document.getElementById('orderGameId')?.value.trim(),nickname=document.getElementById('orderNickname')?.value.trim(),payment=document.getElementById('orderPayment')?.value,name=window.hgiCurrentProduct,cart=window.hgiOrderCart||{},items=Object.entries(cart).filter(([,quantity])=>quantity>0),message=document.getElementById('modalCopy');
-      if(!items.length){message.textContent='Tambahkan minimal satu produk dengan tombol +.';return}
-      if(!gameId||gameId.length<3||!nickname||nickname.length<2||!payment){message.textContent='Lengkapi ID game, nickname, dan metode pembayaran dengan benar.';return}
-      const package17B=cart['100M Voucher HGI (HU)']===2&&cart['500M Voucher HGI (KUCING)']===1&&cart['1B Voucher HGI (ZEUS)']===1;
-      const priceForOrder=name=>name.includes('(HU)')?[0,8000,15000,20000,25000,30000][cart[name]]||0:name.includes('(KUCING)')&&!name.includes('ZEUS')?[0,30000,58000][cart[name]]||0:(Number(([...document.querySelectorAll('.card')].find(card=>card.querySelector('h3')?.textContent.trim()===name)?.querySelector('.price strong')?.textContent||'').replace(/\D/g,''))||0)*cart[name];
-      const finalTotal=package17B?99000:items.reduce((sum,[product])=>sum+priceForOrder(product),0),uniqueCode=Math.floor(10+Math.random()*90),text=`\u{1F514} ORDER \u2022 TOP UP HGI HUB\n\nHalo Admin HGI Hub \u{1F514}\n\nSaya ingin melakukan transaksi TOP UP.\n\n${divider}\n\u{1F514} DETAIL TRANSAKSI\n${divider}\n\nKode Transaksi : #${transactionCode()}\nGame           : Higgs Games\nProduk         : ${productSummary(cart)}\nTotal          : ${totalLabel(cart,package17B)}\nHarga Total    : ${money(finalTotal)}\n\n${divider}\n\u{1F464} DATA PLAYER\n${divider}\n\nID Player      : ${gameId}\nNickname       : ${nickname}\n\n${divider}\n\u{1F4B3} PEMBAYARAN\n${divider}\n\nMetode         : ${payment}\nKode Unik      : ${uniqueCode}\nTotal Bayar    : ${money(finalTotal+uniqueCode)}\n\n${divider}\n\nMohon diproses. Terima kasih. \u{1F64F}\n\nHGI Hub \u2022 Layanan Jual Beli Chip Game`;
-      message.textContent='Pesanan siap dikirim ke WhatsApp.';
-      sendToAdmin(text);
-    };
+const sendToAdmin=text=>{
+  window.location.href='https://web.whatsapp.com/send?phone=6288707646282&text='+encodeURIComponent(whatsappText);
+};
+  window.submitProductOrder=function(){
+  const gameId=document.getElementById('orderGameId')?.value.trim();
+  const nickname=document.getElementById('orderNickname')?.value.trim();
+  const payment=document.getElementById('orderPayment')?.value;
+  const cart=window.hgiOrderCart||{};
+  const items=Object.entries(cart).filter(([,quantity])=>quantity>0);
+  const message=document.getElementById('modalCopy');
+
+  if(!items.length){
+    message.textContent='Tambahkan minimal satu produk dengan tombol +.';
+    return;
+  }
+
+  if(!gameId||gameId.length<3||!nickname||nickname.length<2||!payment){
+    message.textContent='Lengkapi ID game, nickname, dan metode pembayaran dengan benar.';
+    return;
+  }
+
+  const package17B=cart['100M Voucher HGI (HU)']===2&&cart['500M Voucher HGI (KUCING)']===1&&cart['1B Voucher HGI (ZEUS)']===1;
+
+  const priceForOrder=name=>name.includes('(HU)')?[0,8000,15000,20000,25000,30000][cart[name]]||0:name.includes('(KUCING)')&&!name.includes('ZEUS')?[0,30000,58000][cart[name]]||0:(Number(([...document.querySelectorAll('.card')].find(card=>card.querySelector('h3')?.textContent.trim()===name)?.querySelector('.price strong')?.textContent||'').replace(/\D/g,''))||0)*cart[name];
+
+  const finalTotal=package17B?99000:items.reduce((sum,[product])=>sum+priceForOrder(product),0);
+  const uniqueCode=Math.floor(10+Math.random()*90);
+
+  const text=`Kode Transaksi : #${transactionCode()}
+Game           : Higgs Games
+Produk         : ${productSummary(cart)}
+Total          : ${totalLabel(cart,package17B)}
+Harga Total    : ${money(finalTotal)}
+
+━━━━━━━━━━━━━━━━
+
+ID Player      : ${gameId}
+Nickname       : ${nickname}
+
+━━━━━━━━━━━━━━━━
+
+Metode         : ${payment}
+Kode Unik      : ${uniqueCode}
+Total Bayar    : ${money(finalTotal+uniqueCode)}
+
+━━━━━━━━━━━━━━━━
+
+Mohon diproses. Terima kasih.`;
+
+  message.textContent='Pesanan siap dikirim ke WhatsApp.';
+const whatsappText=
+  '🛒 [ORDER] - TOP UP HGI HUB\n\n'+
+  'Halo Admin HGI Hub\n\n'+
+  'Saya ingin melakukan transaksi TOP UP.\n\n'+
+  String.fromCodePoint(0x1F4CB)+' DETAIL TRANSAKSI\n'+
+  '━━━━━━━━━━━━━━━━\n\n'+
+  '```'+
+  'Kode Transaksi : #'+transactionCode()+'\n'+
+  'Game           : Higgs Games\n'+
+  'Produk         : '+productSummary(cart)+'\n'+
+  'Total          : '+totalLabel(cart,package17B)+'\n'+
+  'Harga Total    : '+money(finalTotal)+
+  '```\n\n'+
+  String.fromCodePoint(0x1F464)+' DATA PLAYER\n'+
+  '━━━━━━━━━━━━━━━━\n\n'+
+  '```'+
+  'ID Player      : '+gameId+'\n'+
+  'Nickname       : '+nickname+
+  '```\n\n'+
+  String.fromCodePoint(0x1F4B3)+' PEMBAYARAN\n'+
+  '━━━━━━━━━━━━━━━━\n\n'+
+  '```'+
+  'Metode         : '+payment+'\n'+
+  'Kode Unik      : '+uniqueCode+'\n'+
+  'Total Bayar    : '+money(finalTotal+uniqueCode)+
+  '```\n\n'+
+  '━━━━━━━━━━━━━━━━\n\n'+
+  'Mohon diproses. Terima kasih. '+
+  String.fromCodePoint(0x1F64F)+'\n\n'+
+  'HGI Hub - Layanan Jual Beli Chip Game';
+window.location.href='https://wa.me/6288707646282?text='+encodeURIComponent(whatsappText);
+};
     window.submitSellForm=function(event){
       event.preventDefault();
       const form=event.target,amountB=Number(form.amount.value),message=document.getElementById('sellMessage');
       if(!Number.isInteger(amountB)||amountB<1||amountB>5){message.textContent='Isi nominal dengan angka 1 sampai 5B.';form.amount.focus();return}
       const text=`\u{1F4B8} SELL \u2022 HGI HUB\n\nHalo Admin HGI Hub \u{1F514}\n\nSaya ingin menjual chip HGI.\n\n${divider}\n\u{1F514} DETAIL TRANSAKSI\n${divider}\n\nKode Transaksi : #${transactionCode()}\nGame           : Higgs Games\nJumlah Chip    : ${amountB}B\nHarga Jual     : Mohon konfirmasi admin\n\n${divider}\n\u{1F464} DATA PENJUAL\n${divider}\n\nID Player      : ${form.senderId.value.trim()}\n\n${divider}\n\u{1F4B3} PEMBAYARAN\n${divider}\n\nBank / E-wallet: ${form.bank.value}\nNomor Rekening : ${form.accountNumber.value.trim()}\nAtas Nama      : ${form.accountName.value.trim()}\n\n${divider}\n\nMohon dicek harga dan diproses. Terima kasih. \u{1F64F}\n\nHGI Hub \u2022 Layanan Jual Beli Chip Game`;
       message.textContent='Data penjualan siap dikirim ke WhatsApp.';
-      sendToAdmin(text);
-    };
+window.location.href='https://web.whatsapp.com/send?phone=6288707646282&text='+encodeURIComponent(whatsappText);    };
   })();
 </script>
 <script>
@@ -285,7 +355,7 @@ Admin akan menanggapi pesan Anda untuk konfirmasi data, negosiasi harga, dan mel
     const baseOpenModal=window.openModal;
     window.openAdminWhatsApp=function(){
       const text='Halo Admin HGI Hub, saya ingin bertanya tentang stok, harga, dan transaksi chip game.';
-      window.open('https://wa.me/?text='+encodeURIComponent(text),'_blank','noopener');
+      window.location.href='https://wa.me/6288707646282?text='+encodeURIComponent(text);
     };
     window.openModal=function(name){
       baseOpenModal(name);
@@ -307,12 +377,7 @@ Admin akan menanggapi pesan Anda untuk konfirmasi data, negosiasi harga, dan mel
       profile.transactions.push({product:window.hgiCurrentProduct||'Order WhatsApp',date:new Intl.DateTimeFormat('id-ID',{dateStyle:'medium'}).format(new Date())});
       localStorage.setItem('hgiHubProfile',JSON.stringify(profile));
     };
-    const originalSubmit=window.submitProductOrder;
-    window.submitProductOrder=function(){
-      const items=Object.values(window.hgiOrderCart||{}).some(quantity=>quantity>0),gameId=document.getElementById('orderGameId')?.value.trim(),nickname=document.getElementById('orderNickname')?.value.trim(),payment=document.getElementById('orderPayment')?.value;
-      originalSubmit();
-      if(items&&gameId&&gameId.length>=3&&nickname&&nickname.length>=2&&payment)saveTransaction();
-    };
+      
   })();
 </script>
 <style>
@@ -342,8 +407,7 @@ Admin akan menanggapi pesan Anda untuk konfirmasi data, negosiasi harga, dan mel
       if(!Number.isInteger(amountB)||amountB<10){message.textContent='Jumlah penjualan minimal 10B chip.';form.amount.focus();return}
       const text='[SELL] - HGI HUB\n\nHalo Admin HGI Hub\n\nMohon diproses penjualan chip.\n\n━━━━━━━━━━━━━━━━\n[DETAIL TRANSAKSI]\n━━━━━━━━━━━━━━━━\n\nKode Transaksi : #'+Math.random().toString(36).slice(2,8).toUpperCase()+'\nGame           : Higgs Games\nJumlah Chip    : '+amountB+'B\nHarga Jual     : Mohon konfirmasi admin\n\n━━━━━━━━━━━━━━━━\n[DATA PENJUAL]\n━━━━━━━━━━━━━━━━\n\nID Player         : '+form.senderId.value.trim()+'\n\n━━━━━━━━━━━━━━━━\n[PEMBAYARAN]\n━━━━━━━━━━━━━━━━\n\nBank / E-wallet: '+form.bank.value+'\nNomor Rekening : '+form.accountNumber.value.trim()+'\nAtas Nama      : '+form.accountName.value.trim()+'\n\n━━━━━━━━━━━━━━━━\n\nMohon dicek harga dan diproses. Terima kasih.\n\nHGI Hub - Layanan Jual Beli Chip Game';
       message.textContent='Data penjualan siap dikirim ke WhatsApp.';
-      window.open('https://wa.me/?text='+encodeURIComponent(text),'_blank','noopener');
-    };
+window.location.href='https://web.whatsapp.com/send?phone=6288707646282&text='+encodeURIComponent(whatsappText);    };
   })();
 </script>
 
@@ -369,7 +433,7 @@ Admin akan menanggapi pesan Anda untuk konfirmasi data, negosiasi harga, dan mel
       const form=event.target,amountB=Number(form.amount.value),message=document.getElementById('sellMessage');
       if(!Number.isInteger(amountB)||amountB<1){message.textContent='Masukkan jumlah chip minimal 1B.';form.amount.focus();return}
       const text='[SELL] - HGI HUB\n\nHalo Admin HGI Hub\n\nMohon diproses penjualan chip.\n\n━━━━━━━━━━━━━━━━\n[DETAIL TRANSAKSI]\n━━━━━━━━━━━━━━━━\n\nKode Transaksi : #'+Math.random().toString(36).slice(2,8).toUpperCase()+'\nGame           : Higgs Games\nJumlah Chip    : '+amountB+'B\nHarga Jual     : Mohon konfirmasi admin\n\n━━━━━━━━━━━━━━━━\n[DATA PENJUAL]\n━━━━━━━━━━━━━━━━\n\nID Player         : '+form.senderId.value.trim()+'\n\n━━━━━━━━━━━━━━━━\n[PEMBAYARAN]\n━━━━━━━━━━━━━━━━\n\nBank / E-wallet: '+form.bank.value+'\nNomor Rekening : '+form.accountNumber.value.trim()+'\nAtas Nama      : '+form.accountName.value.trim()+'\n\n━━━━━━━━━━━━━━━━\n\nMohon dicek harga dan diproses. Terima kasih.\n\nHGI Hub - Layanan Jual Beli Chip Game';
-      message.textContent='Data penjualan siap dikirim ke WhatsApp.';window.open('https://wa.me/?text='+encodeURIComponent(text),'_blank','noopener');
+      message.textContent='Data penjualan siap dikirim ke WhatsApp.';window.location.href='https://wa.me/6288707646282?text='+encodeURIComponent(text);
     };
   })();
 </script>
@@ -384,9 +448,8 @@ Admin akan menanggapi pesan Anda untuk konfirmasi data, negosiasi harga, dan mel
   window.saveProfile=async function(event){event.preventDefault();const form=event.currentTarget;showMessage('profileMessage','Menyimpan pendaftaran…');try{const response=await fetch(api+'/register',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email:form.email.value.trim(),phone:form.phone.value.trim(),password:form.password.value})}),data=await response.json();if(!response.ok)throw new Error(data.message||'Pendaftaran gagal.');localStorage.setItem('hgiHubPendingRegistration',JSON.stringify({email:form.email.value.trim().toLowerCase(),phone:form.phone.value.trim(),password:form.password.value,code:data.devCode||''}));profileAuthView='verify';renderProfile()}catch(error){showMessage('profileMessage',error.message)}};
   window.verifyRegistration=async function(event){event.preventDefault();const pending=getPending();if(!pending)return setAuthView('register');showMessage('profileMessage','Memverifikasi akun…');try{const response=await fetch(api+'/verify',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email:pending.email,code:event.currentTarget.code.value.trim()})}),data=await response.json();if(!response.ok)throw new Error(data.message||'Verifikasi gagal.');localStorage.setItem('hgiHubProfile',JSON.stringify(data.user));localStorage.setItem('hgiHubSession',data.user.email);localStorage.removeItem('hgiHubPendingRegistration');renderProfile()}catch(error){showMessage('profileMessage',error.message)}};
   const slugFor={'100M Voucher HGI (HU)':'hu','500M Voucher HGI (KUCING)':'kucing','1B Voucher HGI (ZEUS)':'zeus'};
-  const originalOrder=window.submitProductOrder;
-  window.submitProductOrder=async function(){const p=profile(),cart=window.hgiOrderCart||{},gameId=document.getElementById('orderGameId')?.value.trim(),nickname=document.getElementById('orderNickname')?.value.trim(),payment=document.getElementById('orderPayment')?.value;if(!p?.email||localStorage.getItem('hgiHubSession')!==p.email){closeModal();openProfile('login');return}const items=Object.entries(cart).filter(([,quantity])=>quantity>0).map(([name,quantity])=>({slug:slugFor[name],quantity})).filter(item=>item.slug);try{const response=await fetch(api+'/orders',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email:p.email,gameId,nickname,payment,items})}),data=await response.json();if(!response.ok)throw new Error(data.message||'Order gagal disimpan.');await originalOrder()}catch(error){showMessage('modalCopy',error.message)}};
-  const originalSell=window.submitSellForm;
+  
+ const originalSell=window.submitSellForm;
   window.submitSellForm=async function(event){event.preventDefault();const form=event.currentTarget,p=profile(),amountB=Number(form.amount.value);if(!p?.email||localStorage.getItem('hgiHubSession')!==p.email){showMessage('sellMessage','Login terlebih dahulu sebelum mengirim data penjualan.');openProfile('login');return}try{const response=await fetch(api+'/sell-orders',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email:p.email,amountB,senderId:form.senderId.value.trim(),bank:form.bank.value,accountNumber:form.accountNumber.value.trim(),accountName:form.accountName.value.trim()})}),data=await response.json();if(!response.ok)throw new Error(data.message||'Data penjualan gagal disimpan.');await originalSell(event)}catch(error){showMessage('sellMessage',error.message)}};
 })();
 </script>

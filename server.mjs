@@ -1,52 +1,1081 @@
 import express from 'express';
-import { DatabaseSync } from 'node:sqlite';
+import { Pool } from 'pg';
 import nodemailer from 'nodemailer';
 import crypto from 'node:crypto';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-const __dirname=path.dirname(fileURLToPath(import.meta.url));
-const app=express();
-const port=Number(process.env.PORT||3010);
-const db=new DatabaseSync(path.join(__dirname,'hgi-hub.sqlite'));
-db.exec(`CREATE TABLE IF NOT EXISTS users (id INTEGER PRIMARY KEY AUTOINCREMENT,email TEXT UNIQUE NOT NULL,phone TEXT NOT NULL,password_hash TEXT NOT NULL,verified INTEGER NOT NULL DEFAULT 0,verification_code TEXT,verification_expires INTEGER,created_at TEXT NOT NULL);
-CREATE TABLE IF NOT EXISTS orders (id INTEGER PRIMARY KEY AUTOINCREMENT,code TEXT UNIQUE NOT NULL,user_email TEXT NOT NULL,game_id TEXT NOT NULL,nickname TEXT NOT NULL,payment TEXT NOT NULL,items_json TEXT NOT NULL,total_m INTEGER NOT NULL,price_total INTEGER NOT NULL,unique_code INTEGER NOT NULL,total_pay INTEGER NOT NULL,status TEXT NOT NULL DEFAULT 'pending',created_at TEXT NOT NULL);
-CREATE TABLE IF NOT EXISTS sell_orders (id INTEGER PRIMARY KEY AUTOINCREMENT,code TEXT UNIQUE NOT NULL,user_email TEXT NOT NULL,amount_b INTEGER NOT NULL,sender_id TEXT NOT NULL,bank TEXT NOT NULL,account_number TEXT NOT NULL,account_name TEXT NOT NULL,status TEXT NOT NULL DEFAULT 'pending',created_at TEXT NOT NULL);
-CREATE TABLE IF NOT EXISTS transactions (id INTEGER PRIMARY KEY AUTOINCREMENT,user_email TEXT NOT NULL,kind TEXT NOT NULL,reference_code TEXT NOT NULL,product_label TEXT NOT NULL,amount INTEGER NOT NULL,created_at TEXT NOT NULL)`);
-app.use(express.json({limit:'40kb'}));app.use(express.static(__dirname));
-const cleanEmail=v=>String(v||'').trim().toLowerCase();
-const validPhone=v=>/^[0-9+() -]{8,}$/.test(String(v||'').trim());
-const hashPassword=v=>crypto.scryptSync(String(v),process.env.PASSWORD_PEPPER||'hgi-hub-local-pepper',32).toString('hex');
-const money=v=>new Intl.NumberFormat('id-ID').format(Number(v)||0);
-const now=()=>new Date().toISOString();
-const makeCode=prefix=>prefix+'-'+crypto.randomBytes(4).toString('hex').toUpperCase();
-const levelFor=count=>count?1+(count-1)*0.5:0;
-const productMap={hu:{name:'100M Voucher HGI (HU)',price:8000,chipM:100},kucing:{name:'500M Voucher HGI (KUCING)',price:30000,chipM:500},zeus:{name:'1B Voucher HGI (ZEUS)',price:58000,chipM:1000}};
-const transactionsFor=email=>db.prepare('SELECT kind,reference_code AS code,product_label AS product,amount,created_at AS date FROM transactions WHERE user_email=? ORDER BY id DESC').all(email);
-const userPayload=user=>{const transactions=transactionsFor(user.email);return {email:user.email,phone:user.phone,verified:Boolean(user.verified),transactions,level:levelFor(transactions.length)}};
-const findUser=email=>db.prepare('SELECT * FROM users WHERE email=?').get(cleanEmail(email));
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
-app.get('/api/health',(req,res)=>res.json({ok:true,service:'hgi-hub',mode:'local-backend'}));
-app.get('/api/products',(req,res)=>res.json({products:productMap}));
-app.post('/api/register',async(req,res)=>{const email=cleanEmail(req.body?.email),phone=String(req.body?.phone||'').trim(),password=String(req.body?.password||'');if(!/^\S+@\S+\.\S+$/.test(email))return res.status(400).json({message:'Email belum valid.'});if(!validPhone(phone))return res.status(400).json({message:'Nomor HP belum valid.'});if(password.length<6)return res.status(400).json({message:'Password minimal 6 karakter.'});const existing=findUser(email);if(existing?.verified)return res.status(409).json({message:'Email sudah terdaftar. Silakan login.'});const code=String(crypto.randomInt(100000,1000000)),expires=Date.now()+600000;db.prepare(`INSERT INTO users(email,phone,password_hash,verified,verification_code,verification_expires,created_at) VALUES(?,?,?,0,?,?,?) ON CONFLICT(email) DO UPDATE SET phone=excluded.phone,password_hash=excluded.password_hash,verification_code=excluded.verification_code,verification_expires=excluded.verification_expires`).run(email,phone,hashPassword(password),code,expires,now());const smtp=process.env.SMTP_HOST&&process.env.SMTP_USER&&process.env.SMTP_PASS&&process.env.MAIL_FROM;if(!smtp)return res.status(201).json({message:'Pendaftaran tersimpan. Gunakan kode demo untuk verifikasi lokal.',devCode:code});try{const transporter=nodemailer.createTransport({host:process.env.SMTP_HOST,port:Number(process.env.SMTP_PORT||587),secure:String(process.env.SMTP_SECURE).toLowerCase()==='true',auth:{user:process.env.SMTP_USER,pass:process.env.SMTP_PASS}});await transporter.sendMail({from:process.env.MAIL_FROM,to:email,subject:'Kode verifikasi HGI Hub',text:`Kode verifikasi HGI Hub Anda: ${code}`});res.status(201).json({message:'Kode verifikasi telah dikirim ke email Anda.'})}catch(e){res.status(502).json({message:'Email verifikasi gagal dikirim.'})}});
-app.post('/api/verify',(req,res)=>{const user=findUser(req.body?.email),code=String(req.body?.code||'').trim();if(!user)return res.status(404).json({message:'Data pendaftaran tidak ditemukan.'});if(!/^\d{6}$/.test(code)||user.verification_code!==code)return res.status(400).json({message:'Kode verifikasi belum sesuai.'});if(Number(user.verification_expires)<Date.now())return res.status(400).json({message:'Kode verifikasi sudah kedaluwarsa.'});db.prepare('UPDATE users SET verified=1,verification_code=NULL,verification_expires=NULL WHERE id=?').run(user.id);res.json({message:'Akun berhasil diverifikasi.',user:userPayload({...user,verified:1})})});
-app.post('/api/login',(req,res)=>{const user=findUser(req.body?.email),password=String(req.body?.password||'');if(!user)return res.status(401).json({message:'Akun belum ditemukan.'});if(!user.verified)return res.status(403).json({message:'Email belum terverifikasi.'});if(user.password_hash!==hashPassword(password))return res.status(401).json({message:'Email atau password belum sesuai.'});res.json({message:'Login berhasil.',user:userPayload(user)})});
+const app = express();
+const port = Number(process.env.PORT || 3010);
 
-const priceFor=(slug,qty)=>{if(slug==='hu')return [0,8000,15000,20000,25000,30000][Math.min(qty,5)]||qty*8000;if(slug==='kucing')return qty===1?30000:qty===2?58000:qty*30000;if(slug==='zeus')return qty*58000;return 0};
-const orderTotals=items=>{const normalized=items.map(item=>({slug:String(item.slug),quantity:Number(item.quantity)})).filter(item=>productMap[item.slug]&&Number.isInteger(item.quantity)&&item.quantity>0);const exact=normalized.length===3&&normalized.every(i=>i.quantity==={hu:2,kucing:1,zeus:1}[i.slug]);const totalM=normalized.reduce((s,i)=>s+productMap[i.slug].chipM*i.quantity,0);const price=exact?99000:normalized.reduce((s,i)=>s+priceFor(i.slug,i.quantity),0);return {normalized,totalM,price,exact}};
-app.post('/api/orders',(req,res)=>{const email=cleanEmail(req.body?.email),user=findUser(email),gameId=String(req.body?.gameId||'').trim(),nickname=String(req.body?.nickname||'').trim(),payment=String(req.body?.payment||'').trim(),items=Array.isArray(req.body?.items)?req.body.items:[];if(!user?.verified)return res.status(401).json({message:'Silakan login dan verifikasi akun terlebih dahulu.'});if(!gameId||!nickname||!payment)return res.status(400).json({message:'ID game, nickname, dan pembayaran wajib diisi.'});const totals=orderTotals(items);if(!totals.normalized.length)return res.status(400).json({message:'Pilih minimal satu produk.'});const code=makeCode('ORD'),uniqueCode=crypto.randomInt(10,100),created=now(),totalPay=totals.price+uniqueCode;db.prepare('INSERT INTO orders(code,user_email,game_id,nickname,payment,items_json,total_m,price_total,unique_code,total_pay,status,created_at) VALUES(?,?,?,?,?,?,?,?,?,?,?,?)').run(code,email,gameId,nickname,payment,JSON.stringify(totals.normalized),totals.totalM,totals.price,uniqueCode,totalPay,'pending',created);db.prepare('INSERT INTO transactions(user_email,kind,reference_code,product_label,amount,created_at) VALUES(?,?,?,?,?,?)').run(email,'buy',code,totals.normalized.map(i=>`${i.quantity} ${productMap[i.slug].name}`).join(', '),totals.totalM,created);res.status(201).json({ok:true,order:{code,totalM:totals.totalM,priceTotal:totals.price,uniqueCode,totalPay,status:'pending'}})});
-app.post('/api/sell-orders',(req,res)=>{const email=cleanEmail(req.body?.email),user=findUser(email),amountB=Number(req.body?.amountB),senderId=String(req.body?.senderId||'').trim(),bank=String(req.body?.bank||'').trim(),accountNumber=String(req.body?.accountNumber||'').trim(),accountName=String(req.body?.accountName||'').trim();if(!user?.verified)return res.status(401).json({message:'Silakan login dan verifikasi akun terlebih dahulu.'});if(!Number.isInteger(amountB)||amountB<1)return res.status(400).json({message:'Jumlah chip minimal 1B.'});if(!senderId||!bank||!accountNumber||!accountName)return res.status(400).json({message:'Data penjualan belum lengkap.'});const code=makeCode('SELL'),created=now();db.prepare('INSERT INTO sell_orders(code,user_email,amount_b,sender_id,bank,account_number,account_name,status,created_at) VALUES(?,?,?,?,?,?,?,?,?)').run(code,email,amountB,senderId,bank,accountNumber,accountName,'pending',created);db.prepare('INSERT INTO transactions(user_email,kind,reference_code,product_label,amount,created_at) VALUES(?,?,?,?,?,?)').run(email,'sell',code,`${amountB}B chip`,amountB,created);res.status(201).json({ok:true,order:{code,amountB,status:'pending'}})});
+if (!process.env.DATABASE_URL) {
+  console.error('DATABASE_URL belum ditemukan.');
+  process.exit(1);
+}
 
-const whatsappNumber=()=>String(process.env.WHATSAPP_ADMIN_NUMBER||'').replace(/\D/g,'');
-const whatsappUrl=message=>`https://wa.me/${whatsappNumber()}?text=${encodeURIComponent(message)}`;
-const sendWhatsApp=async(req,res)=>{const message=String(req.body?.message||'').trim();if(message.length<3)return res.status(400).json({message:'Pesan WhatsApp belum diisi.'});if(!(process.env.WHATSAPP_ACCESS_TOKEN&&process.env.WHATSAPP_PHONE_NUMBER_ID))return res.json({ok:true,mode:'click-to-chat',url:whatsappUrl(message),message:'WhatsApp siap dibuka.'});try{const version=process.env.WHATSAPP_API_VERSION||'v22.0';const response=await fetch(`https://graph.facebook.com/${version}/${process.env.WHATSAPP_PHONE_NUMBER_ID}/messages`,{method:'POST',headers:{Authorization:`Bearer ${process.env.WHATSAPP_ACCESS_TOKEN}`,'Content-Type':'application/json'},body:JSON.stringify({messaging_product:'whatsapp',to:whatsappNumber(),type:'text',text:{preview_url:false,body:message}})});const data=await response.json().catch(()=>({}));if(!response.ok)return res.status(502).json({message:'WhatsApp API gagal mengirim pesan.',detail:data.error?.message});res.json({ok:true,mode:'cloud-api',sent:true,message:'Pesan berhasil dikirim ke admin.'})}catch(e){res.status(502).json({message:'WhatsApp API tidak dapat dihubungi.'})}};
-app.post('/api/whatsapp/send',sendWhatsApp);app.post('/api/whatsapp/order',sendWhatsApp);app.post('/api/whatsapp/admin',sendWhatsApp);
+const pool = new Pool({
+  connectionString: process.env.DATABASE_URL,
+  max: 1,
+  ssl: {
+    rejectUnauthorized: false
+  }
+});
 
-const adminGuard=(req,res,next)=>{const email=cleanEmail(req.headers['x-admin-email']),password=String(req.headers['x-admin-password']||'');if(!process.env.ADMIN_EMAIL||email!==cleanEmail(process.env.ADMIN_EMAIL)||password!==String(process.env.ADMIN_PASSWORD||''))return res.status(401).json({message:'Akses admin ditolak.'});next()};
-app.get('/api/admin/summary',adminGuard,(req,res)=>{const users=db.prepare('SELECT COUNT(*) AS count FROM users WHERE verified=1').get().count,orders=db.prepare('SELECT COUNT(*) AS count FROM orders').get().count,sells=db.prepare('SELECT COUNT(*) AS count FROM sell_orders').get().count,pending=db.prepare(`SELECT (SELECT COUNT(*) FROM orders WHERE status='pending')+(SELECT COUNT(*) FROM sell_orders WHERE status='pending') AS count`).get().count;res.json({users,orders,sells,pending})});
-app.get('/api/admin/orders',adminGuard,(req,res)=>res.json({orders:db.prepare('SELECT * FROM orders ORDER BY id DESC LIMIT 100').all().map(o=>({...o,items:JSON.parse(o.items_json)}))}));
-app.get('/api/admin/sell-orders',adminGuard,(req,res)=>res.json({orders:db.prepare('SELECT * FROM sell_orders ORDER BY id DESC LIMIT 100').all()}));
-app.patch('/api/admin/orders/:code',adminGuard,(req,res)=>{const status=String(req.body?.status||'').trim();if(!['pending','processing','completed','cancelled'].includes(status))return res.status(400).json({message:'Status tidak valid.'});const result=db.prepare('UPDATE orders SET status=? WHERE code=?').run(status,req.params.code);res.json({ok:result.changes>0})});
-app.patch('/api/admin/sell-orders/:code',adminGuard,(req,res)=>{const status=String(req.body?.status||'').trim();if(!['pending','processing','completed','cancelled'].includes(status))return res.status(400).json({message:'Status tidak valid.'});const result=db.prepare('UPDATE sell_orders SET status=? WHERE code=?').run(status,req.params.code);res.json({ok:result.changes>0})});
+const cleanEmail = v => String(v || '').trim().toLowerCase();
 
-app.listen(port,()=>console.log(`HGI Hub API running on http://localhost:${port}`));
+const validPhone = v =>
+  /^[0-9+() -]{8,}$/.test(String(v || '').trim());
+
+const hashPassword = v =>
+  crypto
+    .scryptSync(
+      String(v),
+      process.env.PASSWORD_PEPPER || 'hgi-hub-local-pepper',
+      32
+    )
+    .toString('hex');
+
+const money = v =>
+  new Intl.NumberFormat('id-ID').format(Number(v) || 0);
+
+const now = () => new Date().toISOString();
+
+const makeCode = prefix =>
+  prefix + '-' + crypto.randomBytes(4).toString('hex').toUpperCase();
+
+const levelFor = count =>
+  count ? 1 + (count - 1) * 0.5 : 0;
+
+const productMap = {
+  hu: {
+    name: '100M Voucher HGI (HU)',
+    price: 8000,
+    chipM: 100
+  },
+  kucing: {
+    name: '500M Voucher HGI (KUCING)',
+    price: 30000,
+    chipM: 500
+  },
+  zeus: {
+    name: '1B Voucher HGI (ZEUS)',
+    price: 58000,
+    chipM: 1000
+  }
+};
+
+app.use(express.json({ limit: '40kb' }));
+app.use(express.static(__dirname));
+
+/* =========================================================
+   DATABASE
+========================================================= */
+
+async function initDatabase() {
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS users (
+      id INTEGER GENERATED BY DEFAULT AS IDENTITY PRIMARY KEY,
+      email TEXT UNIQUE NOT NULL,
+      phone TEXT NOT NULL,
+      password_hash TEXT NOT NULL,
+      verified INTEGER NOT NULL DEFAULT 0,
+      verification_code TEXT,
+      verification_expires BIGINT,
+      created_at TEXT NOT NULL
+    );
+
+    CREATE TABLE IF NOT EXISTS orders (
+      id INTEGER GENERATED BY DEFAULT AS IDENTITY PRIMARY KEY,
+      code TEXT UNIQUE NOT NULL,
+      user_email TEXT NOT NULL,
+      game_id TEXT NOT NULL,
+      nickname TEXT NOT NULL,
+      payment TEXT NOT NULL,
+      items_json TEXT NOT NULL,
+      total_m INTEGER NOT NULL,
+      price_total INTEGER NOT NULL,
+      unique_code INTEGER NOT NULL,
+      total_pay INTEGER NOT NULL,
+      status TEXT NOT NULL DEFAULT 'pending',
+      created_at TEXT NOT NULL
+    );
+
+    CREATE TABLE IF NOT EXISTS sell_orders (
+      id INTEGER GENERATED BY DEFAULT AS IDENTITY PRIMARY KEY,
+      code TEXT UNIQUE NOT NULL,
+      user_email TEXT NOT NULL,
+      amount_b INTEGER NOT NULL,
+      sender_id TEXT NOT NULL,
+      bank TEXT NOT NULL,
+      account_number TEXT NOT NULL,
+      account_name TEXT NOT NULL,
+      status TEXT NOT NULL DEFAULT 'pending',
+      created_at TEXT NOT NULL
+    );
+
+    CREATE TABLE IF NOT EXISTS transactions (
+      id INTEGER GENERATED BY DEFAULT AS IDENTITY PRIMARY KEY,
+      user_email TEXT NOT NULL,
+      kind TEXT NOT NULL,
+      reference_code TEXT NOT NULL,
+      product_label TEXT NOT NULL,
+      amount INTEGER NOT NULL,
+      created_at TEXT NOT NULL
+    );
+  `);
+
+  console.log('Supabase PostgreSQL database ready.');
+}
+
+async function findUser(email) {
+  const result = await pool.query(
+    'SELECT * FROM users WHERE email = $1',
+    [cleanEmail(email)]
+  );
+
+  return result.rows[0] || null;
+}
+
+async function transactionsFor(email) {
+  const result = await pool.query(
+    `SELECT
+      kind,
+      reference_code AS code,
+      product_label AS product,
+      amount,
+      created_at AS date
+     FROM transactions
+     WHERE user_email = $1
+     ORDER BY id DESC`,
+    [cleanEmail(email)]
+  );
+
+  return result.rows;
+}
+
+async function userPayload(user) {
+  const transactions = await transactionsFor(user.email);
+
+  return {
+    email: user.email,
+    phone: user.phone,
+    verified: Boolean(user.verified),
+    transactions,
+    level: levelFor(transactions.length)
+  };
+}
+
+/* =========================================================
+   BASIC API
+========================================================= */
+
+app.get('/api/health', async (req, res) => {
+  try {
+    await pool.query('SELECT 1');
+
+    res.json({
+      ok: true,
+      service: 'hgi-hub',
+      mode: 'postgresql'
+    });
+  } catch (e) {
+    res.status(500).json({
+      ok: false,
+      message: 'Database tidak dapat dihubungi.'
+    });
+  }
+});
+
+app.get('/api/products', (req, res) => {
+  res.json({
+    products: productMap
+  });
+});
+
+/* =========================================================
+   REGISTER
+========================================================= */
+
+app.post('/api/register', async (req, res) => {
+  try {
+    const email = cleanEmail(req.body?.email);
+    const phone = String(req.body?.phone || '').trim();
+    const password = String(req.body?.password || '');
+
+    if (!/^\S+@\S+\.\S+$/.test(email)) {
+      return res.status(400).json({
+        message: 'Email belum valid.'
+      });
+    }
+
+    if (!validPhone(phone)) {
+      return res.status(400).json({
+        message: 'Nomor HP belum valid.'
+      });
+    }
+
+    if (password.length < 6) {
+      return res.status(400).json({
+        message: 'Password minimal 6 karakter.'
+      });
+    }
+
+    const existing = await findUser(email);
+
+    if (existing?.verified) {
+      return res.status(409).json({
+        message: 'Email sudah terdaftar. Silakan login.'
+      });
+    }
+
+    const code = String(
+      crypto.randomInt(100000, 1000000)
+    );
+
+    const expires = Date.now() + 600000;
+
+    await pool.query(
+      `INSERT INTO users (
+        email,
+        phone,
+        password_hash,
+        verified,
+        verification_code,
+        verification_expires,
+        created_at
+      )
+      VALUES ($1, $2, $3, 0, $4, $5, $6)
+      ON CONFLICT (email)
+      DO UPDATE SET
+        phone = EXCLUDED.phone,
+        password_hash = EXCLUDED.password_hash,
+        verification_code = EXCLUDED.verification_code,
+        verification_expires = EXCLUDED.verification_expires`,
+      [
+        email,
+        phone,
+        hashPassword(password),
+        code,
+        expires,
+        now()
+      ]
+    );
+
+    const smtp =
+      process.env.SMTP_HOST &&
+      process.env.SMTP_USER &&
+      process.env.SMTP_PASS &&
+      process.env.MAIL_FROM;
+
+    if (!smtp) {
+      return res.status(201).json({
+        message:
+          'Pendaftaran tersimpan. Gunakan kode demo untuk verifikasi lokal.',
+        devCode: code
+      });
+    }
+
+    try {
+      const transporter = nodemailer.createTransport({
+        host: process.env.SMTP_HOST,
+        port: Number(process.env.SMTP_PORT || 587),
+        secure:
+          String(process.env.SMTP_SECURE).toLowerCase() === 'true',
+        auth: {
+          user: process.env.SMTP_USER,
+          pass: process.env.SMTP_PASS
+        }
+      });
+
+      await transporter.sendMail({
+        from: process.env.MAIL_FROM,
+        to: email,
+        subject: 'Kode verifikasi HGI Hub',
+        text: `Kode verifikasi HGI Hub Anda: ${code}`
+      });
+
+      res.status(201).json({
+        message: 'Kode verifikasi telah dikirim ke email Anda.'
+      });
+    } catch (e) {
+      console.error('SMTP ERROR:', e.message);
+
+      res.status(502).json({
+        message: 'Email verifikasi gagal dikirim.'
+      });
+    }
+  } catch (e) {
+    console.error('REGISTER ERROR:', e);
+
+    res.status(500).json({
+      message: 'Terjadi kesalahan saat mendaftar.'
+    });
+  }
+});
+
+/* =========================================================
+   VERIFY
+========================================================= */
+
+app.post('/api/verify', async (req, res) => {
+  try {
+    const user = await findUser(req.body?.email);
+    const code = String(req.body?.code || '').trim();
+
+    if (!user) {
+      return res.status(404).json({
+        message: 'Data pendaftaran tidak ditemukan.'
+      });
+    }
+
+    if (
+      !/^\d{6}$/.test(code) ||
+      user.verification_code !== code
+    ) {
+      return res.status(400).json({
+        message: 'Kode verifikasi belum sesuai.'
+      });
+    }
+
+    if (
+      Number(user.verification_expires) < Date.now()
+    ) {
+      return res.status(400).json({
+        message: 'Kode verifikasi sudah kedaluwarsa.'
+      });
+    }
+
+    await pool.query(
+      `UPDATE users
+       SET
+         verified = 1,
+         verification_code = NULL,
+         verification_expires = NULL
+       WHERE id = $1`,
+      [user.id]
+    );
+
+    res.json({
+      message: 'Akun berhasil diverifikasi.',
+      user: await userPayload({
+        ...user,
+        verified: 1
+      })
+    });
+  } catch (e) {
+    console.error('VERIFY ERROR:', e);
+
+    res.status(500).json({
+      message: 'Terjadi kesalahan saat verifikasi.'
+    });
+  }
+});
+
+/* =========================================================
+   LOGIN
+========================================================= */
+
+app.post('/api/login', async (req, res) => {
+  try {
+    const user = await findUser(req.body?.email);
+    const password = String(req.body?.password || '');
+
+    if (!user) {
+      return res.status(401).json({
+        message: 'Akun belum ditemukan.'
+      });
+    }
+
+    if (!user.verified) {
+      return res.status(403).json({
+        message: 'Email belum terverifikasi.'
+      });
+    }
+
+    if (
+      user.password_hash !== hashPassword(password)
+    ) {
+      return res.status(401).json({
+        message: 'Email atau password belum sesuai.'
+      });
+    }
+
+    res.json({
+      message: 'Login berhasil.',
+      user: await userPayload(user)
+    });
+  } catch (e) {
+    console.error('LOGIN ERROR:', e);
+
+    res.status(500).json({
+      message: 'Terjadi kesalahan saat login.'
+    });
+  }
+});
+
+/* =========================================================
+   PRODUCTS / ORDERS
+========================================================= */
+
+const priceFor = (slug, qty) => {
+  if (slug === 'hu') {
+    return (
+      [0, 8000, 15000, 20000, 25000, 30000][
+        Math.min(qty, 5)
+      ] || qty * 8000
+    );
+  }
+
+  if (slug === 'kucing') {
+    return qty === 1
+      ? 30000
+      : qty === 2
+        ? 58000
+        : qty * 30000;
+  }
+
+  if (slug === 'zeus') {
+    return qty * 58000;
+  }
+
+  return 0;
+};
+
+const orderTotals = items => {
+  const normalized = items
+    .map(item => ({
+      slug: String(item.slug),
+      quantity: Number(item.quantity)
+    }))
+    .filter(
+      item =>
+        productMap[item.slug] &&
+        Number.isInteger(item.quantity) &&
+        item.quantity > 0
+    );
+
+  const exact =
+    normalized.length === 3 &&
+    normalized.every(
+      i =>
+        i.quantity ===
+        {
+          hu: 2,
+          kucing: 1,
+          zeus: 1
+        }[i.slug]
+    );
+
+  const totalM = normalized.reduce(
+    (s, i) =>
+      s +
+      productMap[i.slug].chipM * i.quantity,
+    0
+  );
+
+  const price = exact
+    ? 99000
+    : normalized.reduce(
+        (s, i) =>
+          s +
+          priceFor(i.slug, i.quantity),
+        0
+      );
+
+  return {
+    normalized,
+    totalM,
+    price,
+    exact
+  };
+};
+
+app.post('/api/orders', async (req, res) => {
+  const client = await pool.connect();
+
+  try {
+    const email = cleanEmail(req.body?.email);
+    const user = await findUser(email);
+
+    const gameId =
+      String(req.body?.gameId || '').trim();
+
+    const nickname =
+      String(req.body?.nickname || '').trim();
+
+    const payment =
+      String(req.body?.payment || '').trim();
+
+    const items = Array.isArray(req.body?.items)
+      ? req.body.items
+      : [];
+
+    if (!user?.verified) {
+      return res.status(401).json({
+        message:
+          'Silakan login dan verifikasi akun terlebih dahulu.'
+      });
+    }
+
+    if (!gameId || !nickname || !payment) {
+      return res.status(400).json({
+        message:
+          'ID game, nickname, dan pembayaran wajib diisi.'
+      });
+    }
+
+    const totals = orderTotals(items);
+
+    if (!totals.normalized.length) {
+      return res.status(400).json({
+        message: 'Pilih minimal satu produk.'
+      });
+    }
+
+    const code = makeCode('ORD');
+    const uniqueCode = crypto.randomInt(10, 100);
+    const created = now();
+    const totalPay = totals.price + uniqueCode;
+
+    await client.query('BEGIN');
+
+    await client.query(
+      `INSERT INTO orders (
+        code,
+        user_email,
+        game_id,
+        nickname,
+        payment,
+        items_json,
+        total_m,
+        price_total,
+        unique_code,
+        total_pay,
+        status,
+        created_at
+      )
+      VALUES (
+        $1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12
+      )`,
+      [
+        code,
+        email,
+        gameId,
+        nickname,
+        payment,
+        JSON.stringify(totals.normalized),
+        totals.totalM,
+        totals.price,
+        uniqueCode,
+        totalPay,
+        'pending',
+        created
+      ]
+    );
+
+    await client.query(
+      `INSERT INTO transactions (
+        user_email,
+        kind,
+        reference_code,
+        product_label,
+        amount,
+        created_at
+      )
+      VALUES ($1,$2,$3,$4,$5,$6)`,
+      [
+        email,
+        'buy',
+        code,
+        totals.normalized
+          .map(
+            i =>
+              `${i.quantity} ${productMap[i.slug].name}`
+          )
+          .join(', '),
+        totals.totalM,
+        created
+      ]
+    );
+
+    await client.query('COMMIT');
+
+    res.status(201).json({
+      ok: true,
+      order: {
+        code,
+        totalM: totals.totalM,
+        priceTotal: totals.price,
+        uniqueCode,
+        totalPay,
+        status: 'pending'
+      }
+    });
+  } catch (e) {
+    await client.query('ROLLBACK');
+
+    console.error('ORDER ERROR:', e);
+
+    res.status(500).json({
+      message: 'Gagal membuat order.'
+    });
+  } finally {
+    client.release();
+  }
+});
+
+/* =========================================================
+   SELL ORDERS
+========================================================= */
+
+app.post('/api/sell-orders', async (req, res) => {
+  const client = await pool.connect();
+
+  try {
+    const email = cleanEmail(req.body?.email);
+    const user = await findUser(email);
+
+    const amountB = Number(req.body?.amountB);
+    const senderId =
+      String(req.body?.senderId || '').trim();
+
+    const bank =
+      String(req.body?.bank || '').trim();
+
+    const accountNumber =
+      String(req.body?.accountNumber || '').trim();
+
+    const accountName =
+      String(req.body?.accountName || '').trim();
+
+    if (!user?.verified) {
+      return res.status(401).json({
+        message:
+          'Silakan login dan verifikasi akun terlebih dahulu.'
+      });
+    }
+
+    if (!Number.isInteger(amountB) || amountB < 1) {
+      return res.status(400).json({
+        message: 'Jumlah chip minimal 1B.'
+      });
+    }
+
+    if (
+      !senderId ||
+      !bank ||
+      !accountNumber ||
+      !accountName
+    ) {
+      return res.status(400).json({
+        message: 'Data penjualan belum lengkap.'
+      });
+    }
+
+    const code = makeCode('SELL');
+    const created = now();
+
+    await client.query('BEGIN');
+
+    await client.query(
+      `INSERT INTO sell_orders (
+        code,
+        user_email,
+        amount_b,
+        sender_id,
+        bank,
+        account_number,
+        account_name,
+        status,
+        created_at
+      )
+      VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9)`,
+      [
+        code,
+        email,
+        amountB,
+        senderId,
+        bank,
+        accountNumber,
+        accountName,
+        'pending',
+        created
+      ]
+    );
+
+    await client.query(
+      `INSERT INTO transactions (
+        user_email,
+        kind,
+        reference_code,
+        product_label,
+        amount,
+        created_at
+      )
+      VALUES ($1,$2,$3,$4,$5,$6)`,
+      [
+        email,
+        'sell',
+        code,
+        `${amountB}B chip`,
+        amountB,
+        created
+      ]
+    );
+
+    await client.query('COMMIT');
+
+    res.status(201).json({
+      ok: true,
+      order: {
+        code,
+        amountB,
+        status: 'pending'
+      }
+    });
+  } catch (e) {
+    await client.query('ROLLBACK');
+
+    console.error('SELL ORDER ERROR:', e);
+
+    res.status(500).json({
+      message: 'Gagal membuat order penjualan.'
+    });
+  } finally {
+    client.release();
+  }
+});
+
+/* =========================================================
+   WHATSAPP
+========================================================= */
+
+const whatsappNumber = () =>
+  String(
+    process.env.WHATSAPP_ADMIN_NUMBER || ''
+  ).replace(/\D/g, '');
+
+const whatsappUrl = message =>
+  `https://wa.me/${whatsappNumber()}?text=${encodeURIComponent(
+    message
+  )}`;
+
+const sendWhatsApp = async (req, res) => {
+  const message =
+    String(req.body?.message || '').trim();
+
+  if (message.length < 3) {
+    return res.status(400).json({
+      message: 'Pesan WhatsApp belum diisi.'
+    });
+  }
+
+  if (
+    !(
+      process.env.WHATSAPP_ACCESS_TOKEN &&
+      process.env.WHATSAPP_PHONE_NUMBER_ID
+    )
+  ) {
+    return res.json({
+      ok: true,
+      mode: 'click-to-chat',
+      url: whatsappUrl(message),
+      message: 'WhatsApp siap dibuka.'
+    });
+  }
+
+  try {
+    const version =
+      process.env.WHATSAPP_API_VERSION || 'v22.0';
+
+    const response = await fetch(
+      `https://graph.facebook.com/${version}/${process.env.WHATSAPP_PHONE_NUMBER_ID}/messages`,
+      {
+        method: 'POST',
+        headers: {
+          Authorization:
+            `Bearer ${process.env.WHATSAPP_ACCESS_TOKEN}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          messaging_product: 'whatsapp',
+          to: whatsappNumber(),
+          type: 'text',
+          text: {
+            preview_url: false,
+            body: message
+          }
+        })
+      }
+    );
+
+    const data =
+      await response.json().catch(() => ({}));
+
+    if (!response.ok) {
+      return res.status(502).json({
+        message:
+          'WhatsApp API gagal mengirim pesan.',
+        detail: data.error?.message
+      });
+    }
+
+    res.json({
+      ok: true,
+      mode: 'cloud-api',
+      sent: true,
+      message:
+        'Pesan berhasil dikirim ke admin.'
+    });
+  } catch (e) {
+    console.error('WHATSAPP ERROR:', e);
+
+    res.status(502).json({
+      message:
+        'WhatsApp API tidak dapat dihubungi.'
+    });
+  }
+};
+
+app.post('/api/whatsapp/send', sendWhatsApp);
+app.post('/api/whatsapp/order', sendWhatsApp);
+app.post('/api/whatsapp/admin', sendWhatsApp);
+
+/* =========================================================
+   ADMIN
+========================================================= */
+
+const adminGuard = (req, res, next) => {
+  const email = cleanEmail(
+    req.headers['x-admin-email']
+  );
+
+  const password = String(
+    req.headers['x-admin-password'] || ''
+  );
+
+  if (
+    !process.env.ADMIN_EMAIL ||
+    email !== cleanEmail(process.env.ADMIN_EMAIL) ||
+    password !==
+      String(process.env.ADMIN_PASSWORD || '')
+  ) {
+    return res.status(401).json({
+      message: 'Akses admin ditolak.'
+    });
+  }
+
+  next();
+};
+
+app.get(
+  '/api/admin/summary',
+  adminGuard,
+  async (req, res) => {
+    try {
+      const usersResult = await pool.query(
+        `SELECT COUNT(*)::int AS count
+         FROM users
+         WHERE verified = 1`
+      );
+
+      const ordersResult = await pool.query(
+        `SELECT COUNT(*)::int AS count
+         FROM orders`
+      );
+
+      const sellsResult = await pool.query(
+        `SELECT COUNT(*)::int AS count
+         FROM sell_orders`
+      );
+
+      const pendingResult = await pool.query(
+        `SELECT (
+          (SELECT COUNT(*) FROM orders WHERE status = 'pending') +
+          (SELECT COUNT(*) FROM sell_orders WHERE status = 'pending')
+        )::int AS count`
+      );
+
+      res.json({
+        users: usersResult.rows[0].count,
+        orders: ordersResult.rows[0].count,
+        sells: sellsResult.rows[0].count,
+        pending: pendingResult.rows[0].count
+      });
+    } catch (e) {
+      console.error('ADMIN SUMMARY ERROR:', e);
+
+      res.status(500).json({
+        message: 'Gagal mengambil ringkasan admin.'
+      });
+    }
+  }
+);
+
+app.get(
+  '/api/admin/orders',
+  adminGuard,
+  async (req, res) => {
+    try {
+      const result = await pool.query(
+        `SELECT *
+         FROM orders
+         ORDER BY id DESC
+         LIMIT 100`
+      );
+
+      res.json({
+        orders: result.rows.map(o => ({
+          ...o,
+          items: JSON.parse(o.items_json)
+        }))
+      });
+    } catch (e) {
+      console.error('ADMIN ORDERS ERROR:', e);
+
+      res.status(500).json({
+        message: 'Gagal mengambil orders.'
+      });
+    }
+  }
+);
+
+app.get(
+  '/api/admin/sell-orders',
+  adminGuard,
+  async (req, res) => {
+    try {
+      const result = await pool.query(
+        `SELECT *
+         FROM sell_orders
+         ORDER BY id DESC
+         LIMIT 100`
+      );
+
+      res.json({
+        orders: result.rows
+      });
+    } catch (e) {
+      console.error(
+        'ADMIN SELL ORDERS ERROR:',
+        e
+      );
+
+      res.status(500).json({
+        message: 'Gagal mengambil sell orders.'
+      });
+    }
+  }
+);
+
+app.patch(
+  '/api/admin/orders/:code',
+  adminGuard,
+  async (req, res) => {
+    try {
+      const status =
+        String(req.body?.status || '').trim();
+
+      if (
+        ![
+          'pending',
+          'processing',
+          'completed',
+          'cancelled'
+        ].includes(status)
+      ) {
+        return res.status(400).json({
+          message: 'Status tidak valid.'
+        });
+      }
+
+      const result = await pool.query(
+        `UPDATE orders
+         SET status = $1
+         WHERE code = $2`,
+        [status, req.params.code]
+      );
+
+      res.json({
+        ok: result.rowCount > 0
+      });
+    } catch (e) {
+      console.error(
+        'ADMIN UPDATE ORDER ERROR:',
+        e
+      );
+
+      res.status(500).json({
+        message: 'Gagal mengubah status order.'
+      });
+    }
+  }
+);
+
+app.patch(
+  '/api/admin/sell-orders/:code',
+  adminGuard,
+  async (req, res) => {
+    try {
+      const status =
+        String(req.body?.status || '').trim();
+
+      if (
+        ![
+          'pending',
+          'processing',
+          'completed',
+          'cancelled'
+        ].includes(status)
+      ) {
+        return res.status(400).json({
+          message: 'Status tidak valid.'
+        });
+      }
+
+      const result = await pool.query(
+        `UPDATE sell_orders
+         SET status = $1
+         WHERE code = $2`,
+        [status, req.params.code]
+      );
+
+      res.json({
+        ok: result.rowCount > 0
+      });
+    } catch (e) {
+      console.error(
+        'ADMIN UPDATE SELL ORDER ERROR:',
+        e
+      );
+
+      res.status(500).json({
+        message:
+          'Gagal mengubah status sell order.'
+      });
+    }
+  }
+);
+
+/* =========================================================
+   START
+========================================================= */
+
+initDatabase()
+  .then(() => {
+    app.listen(port, () => {
+      console.log(
+        `HGI Hub API running on http://localhost:${port}`
+      );
+    });
+  })
+  .catch(error => {
+    console.error(
+      'Database initialization failed:',
+      error
+    );
+
+    process.exit(1);
+  });

@@ -2,6 +2,12 @@
   "name": "hgi-hub-register-api",
   "private": true,
   "type": "module",
-  "scripts": {"start": "node --env-file=.env server.mjs"},
-  "dependencies": {"express": "^4.21.2", "nodemailer": "^6.9.16"}
+  "scripts": {
+    "start": "node --env-file=.env server.mjs"
+  },
+  "dependencies": {
+    "express": "^4.21.2",
+    "nodemailer": "^6.9.16",
+    "pg": "^8.23.0"
+  }
 }
