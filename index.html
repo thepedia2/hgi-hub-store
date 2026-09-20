@@ -39,7 +39,14 @@
     .sell-note{font-weight:700;letter-spacing:.02em}
     .sell-note:empty::after{content:"Minimal penjualan: 1B chip"}
     .price{color:var(--fg)!important}
-    .sell-form input:invalid:not(:placeholder-shown),.sell-form select:invalid:not(:focus){border-color:oklch(65% .15 35)}
+    .sell-form input:invalid:not(:placeholder-shown),
+.sell-form select:invalid:not(:focus){
+  border-color:oklch(65% .15 35)
+}
+
+.sell-form select:invalid:not(:focus){
+  border-color:var(--border);
+}
     .banner-dot{cursor:pointer;transition:transform .2s ease,background-color .2s ease,opacity .2s ease}
     .banner-dot:hover{transform:scale(1.35);opacity:1}
     @media(max-width:480px){.hero p{max-width:none;font-size:13px}.sell-copy p{white-space:normal}.banner-dot{width:10px;height:10px}}
@@ -78,12 +85,12 @@
       <article class="card" data-name="100m voucher hgi hu 8 ribu" data-type="chip" data-nominal="8000" data-image-slot="card-100m" data-image-source="hu.png:user-provided-asset" data-od-id="product-chip-5m"><div class="card-media has-image"><img class="product-logo" src="hu.png" width="1085" height="1450" alt="Logo voucher HGI Hu"><span class="tag">TERLARIS</span></div><h3>100M Voucher HGI (HU)</h3><div class="meta">Proses instant · stok aman</div><div class="price" style="color: rgb(255, 255, 255);"><strong>Rp 8.000</strong><span class="meta">★ 4.9</span></div><button class="secondary" aria-label="Lihat detail 100M Voucher HGI HU" onclick="openModal('100M Voucher HGI (HU)')">Lihat Detail →</button></article>
       <article class="card" data-name="500m voucher hgi kucing 30 ribu" data-type="chip" data-nominal="30000" data-image-slot="card-500m" data-image-source="kucing.png:user-provided-asset" data-od-id="product-chip-10m"><div class="card-media has-image"><img class="product-logo" src="kucing.png" width="1086" height="1448" alt="Logo voucher HGI Kandang Kucing"><span class="tag">HEMAT</span></div><h3>500M Voucher HGI (KUCING)</h3><div class="meta">Bonus saldo · stok aman</div><div class="price"><strong>Rp 30.000</strong><span class="meta">★ 4.8</span></div><button class="secondary" aria-label="Lihat detail 500M Voucher HGI Kucing" onclick="openModal('500M Voucher HGI (KUCING)')">Lihat Detail →</button></article>
       <article class="card" data-name="1b voucher hgi zeus 58 ribu" data-type="chip" data-nominal="58000" data-image-slot="card-1b" data-image-source="zeus.png:user-provided-asset" data-od-id="product-chip-25m"><div class="card-media has-image"><img class="product-logo" src="zeus.png" width="1084" height="1451" alt="Logo voucher HGI Zeus"><span class="tag">CEPAT</span></div><h3>1B Voucher HGI (ZEUS)</h3><div class="meta">Dikirim &lt; 1 menit</div><div class="price"><strong>Rp 58.000</strong><span class="meta">★ 4.9</span></div><button class="secondary" aria-label="Lihat detail 1B Voucher HGI Zeus" onclick="openModal('1B Voucher HGI (ZEUS)')">Lihat Detail →</button></article>
-      <article class="card" data-name="2.5b voucher hgi zeus kucing 145 ribu" data-type="voucher" data-nominal="145000" data-image-slot="card-2-5b" data-image-source="zeus.png+kucing.png:user-provided-assets" data-od-id="product-voucher"><div class="card-media has-image combo-media"><img class="product-logo" src="zeus.png" width="1084" height="1451" alt="Logo Zeus"><img class="product-logo" src="kucing.png" width="1086" height="1448" alt="Logo Kandang Kucing"><span class="tag">BARU</span></div><h3>2.5B Voucher HGI (ZEUS+KUCING)</h3><div class="meta">Kode digital · instant</div><div class="price"><strong>Rp 146.000</strong><span class="meta">★ 4.7</span></div><button class="secondary" aria-label="Lihat detail 2.5B Voucher HGI Zeus Kucing" onclick="openModal('2.5B Voucher HGI (ZEUS+KUCING)')">Lihat Detail →</button></article>
+      <article class="card" data-name="2.5b voucher hgi zeus kucing 145 ribu" data-type="voucher" data-nominal="145000" data-image-slot="card-2-5b" data-image-source="zeus.png+kucing.png:user-provided-assets" data-od-id="product-voucher"><div class="card-media has-image combo-media"><img class="product-logo" src="zeus.png" width="1084" height="1451" alt="Logo Zeus"><img class="product-logo" src="kucing.png" width="1086" height="1448" alt="Logo Kandang Kucing"><span class="tag">BARU</span></div><h3>100M-10B++</h3><div class="meta">Kode digital · instant</div><div class="price"><strong>Rp ---.---</strong><span class="meta">★ 4.7</span></div><button class="secondary" aria-label="Lihat detail 100M-10B++" onclick="openModal('100M-10B++')">Lihat Detail →</button></article>
     </div><div id="emptyState" class="empty-state hidden" role="status"><strong>Produk tidak ditemukan</strong><span>Coba kata kunci lain atau pilih kategori Semua Produk.</span></div></section>
     <section class="trust" data-od-id="trust-strip"><div class="trust-item"><b>⚡ Proses kilat</b><span>Pesanan masuk otomatis dan diproses dalam hitungan detik.</span></div><div class="trust-item"><b style="color: rgb(34, 197, 94);">◈ Admin online</b><span>Butuh bantuan? Chat langsung untuk cek stok dan status.</span></div><div class="trust-item"><b>✓ Jaminan aman</b><span>Detail harga transparan, tanpa biaya tersembunyi.</span></div></section>
-    <section class="sell-panel" data-od-id="sell-chip" style="transform: translate(1px, -29px);"><div class="sell-copy"><div class="eyebrow" style="font-family: Helvetica, Arial, sans-serif;">Layanan penjualan</div><h2 style="font-family: Georgia, serif;">Bongkar HGI di Sini</h2><p style="font-family: Georgia, serif; font-weight: 700;">Isi formulir di bawah ini dengan data yang diperlukan. Setelah formulir selesai, kirim hasil formulir langsung ke WhatsApp kami untuk diproses.
+    <section class="sell-panel" data-od-id="sell-chip" style="transform: translate(1px, -29px);"><div class="sell-copy"><div class="eyebrow" style="font-family: Helvetica, Arial, sans-serif;">Layanan penjualan</div><h2 style="font-family: Georgia, serif;">Bongkar HGI di Sini</h2><p style="font-family: Georgia, serif; font-weight: 700;">Jual chip HGI dengan proses yang jelas dan transparan. Isi data penjualan dengan lengkap, lalu kirim melalui WhatsApp Admin HGI Hub untuk pengecekan dan konfirmasi.
 
-Admin akan menanggapi pesan Anda untuk konfirmasi data, negosiasi harga, dan melanjutkan proses transaksi</p><span class="sell-note"></span></div><form class="sell-form" onsubmit="submitSellForm(event)"><label>Jumlah chip yang dijual (dalam B)<input name="amount" type="number" min="1" max="5" step="1" inputmode="numeric" placeholder="Ketik 1, 2, 3, 4, atau 5" required=""></label><label>ID pengirim<input name="senderId" type="text" minlength="3" placeholder="Masukkan ID game" required=""></label><label>Bank / e-wallet penerima<select name="bank" required=""><option value="">Pilih bank atau e-wallet</option><option>BCA</option><option>BRI</option><option>BNI</option><option>Mandiri</option><option>BSI</option><option>BTN</option><option>CIMB Niaga</option><option>Danamon</option><option>PermataBank</option><option>SeaBank</option><option>Bank Jago</option><option>DANA</option><option>OVO</option><option>GoPay</option><option>ShopeePay</option><option>LinkAja</option><option>Sakuku</option><option>i.saku</option><option>Jenius</option><option>e-wallet lainnya</option><option>Bank lainnya</option></select></label><label>Nomor rekening / HP<input name="accountNumber" type="text" inputmode="numeric" pattern="[0-9]{6,25}" placeholder="Nomor rekening atau HP e-wallet" required=""></label><label>Atas nama rekening<input name="accountName" type="text" minlength="2" placeholder="Nama pemilik rekening" required=""></label><p id="sellMessage" class="sell-message" role="status" aria-live="polite"></p><small>Format data akan dikirim ke WhatsApp admin untuk konfirmasi.</small><button class="primary sell-submit" type="submit"><img class="wa-icon" src="whatsapp.png" width="64" height="64" alt="">Kirim Data ke WhatsApp</button></form></section>
+ Admin akan memverifikasi data dan mengonfirmasi harga sebelum transaksi dilanjutkan.</p><span class="sell-note"></span></div><form class="sell-form" onsubmit="submitSellForm(event)"><label>Jumlah chip yang dijual (dalam B)<input name="amount" type="number" min="1" step="1" inputmode="numeric" placeholder="Ketik 1, 2, 3, 4, atau 5" required=""></label><label>ID pengirim<input name="senderId" type="text" minlength="3" placeholder="Masukkan ID game" required=""></label><label>Bank / e-wallet penerima<select name="bank" required=""><option value="">Pilih bank atau e-wallet</option><option>BCA</option><option>BRI</option><option>BNI</option><option>Mandiri</option><option>BSI</option><option>BTN</option><option>CIMB Niaga</option><option>Danamon</option><option>PermataBank</option><option>SeaBank</option><option>Bank Jago</option><option>DANA</option><option>OVO</option><option>GoPay</option><option>ShopeePay</option><option>LinkAja</option><option>Sakuku</option><option>i.saku</option><option>Jenius</option><option>e-wallet lainnya</option><option>Bank lainnya</option></select></label><label>Nomor rekening / HP<input name="accountNumber" type="text" inputmode="numeric" pattern="[0-9]{6,25}" placeholder="Nomor rekening atau HP e-wallet" required=""></label><label>Atas nama rekening<input name="accountName" type="text" minlength="2" placeholder="Nama pemilik rekening" required=""></label><p id="sellMessage" class="sell-message" role="status" aria-live="polite"></p><small>Format data akan dikirim ke WhatsApp admin untuk konfirmasi.</small><button class="primary sell-submit" type="submit"><img class="wa-icon" src="whatsapp.png" width="64" height="64" alt="">Kirim Data ke WhatsApp</button></form></section>
   </main>
   <footer class="shell" data-od-id="footer"><span>© 2026 HGI Hub · Digital game marketplace</span><span>Instagram · WhatsApp Admin</span></footer>
   <div id="modalBackdrop" class="modal-backdrop hidden" onclick="if(event.target===this)closeModal()"><div class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle"><div class="modal-top"><div><div class="eyebrow">Detail produk</div><h2 id="modalTitle">2.5B Voucher HGI</h2></div><button class="close" aria-label="Tutup" onclick="closeModal()">×</button></div><p id="modalCopy">Stok tersedia. Admin akan mengonfirmasi nominal dan tujuan pengiriman melalui WhatsApp.</p><button class="primary" onclick="openModal('Admin Online')">Chat Admin Sekarang →</button><button id="recordButton" class="secondary modal-secondary" onclick="recordTransaction()">Catat Transaksi</button></div></div>
@@ -127,7 +134,16 @@ Admin akan menanggapi pesan Anda untuk konfirmasi data, negosiasi harga, dan mel
         modalRoot.querySelector('.order-builder')?.remove();
         if(productCard){
           const priceText=productCard.querySelector('.price strong')?.textContent.trim()||'Harga dikonfirmasi admin';
-          const orderProducts=[{name:'100M Voucher HGI (HU)',label:'HU · 100M',price:'Rp 8.000'},{name:'500M Voucher HGI (KUCING)',label:'Kucing · 500M',price:'Rp 30.000'},{name:'1B Voucher HGI (ZEUS)',label:'Zeus · 1B',price:'Rp 58.000'}];window.hgiOrderCart={};orderProducts.forEach(item=>{window.hgiOrderCart[item.name]=item.name===name?1:0});
+          const allOrderProducts=[
+  {name:'100M Voucher HGI (HU)',label:'HU · 100M',price:'Rp 8.000'},
+  {name:'500M Voucher HGI (KUCING)',label:'Kucing · 500M',price:'Rp 30.000'},
+  {name:'1B Voucher HGI (ZEUS)',label:'Zeus · 1B',price:'Rp 58.000'}
+];
+
+const orderProducts =
+  name === '100M-10B++'
+    ? allOrderProducts
+    : allOrderProducts.filter(item => item.name === name);window.hgiOrderCart={};orderProducts.forEach(item=>{window.hgiOrderCart[item.name]=item.name===name?1:0});
           const builder=document.createElement('div');
           builder.className='order-builder';
           builder.innerHTML='<div class="order-catalog" aria-label="Pilih produk order">'+orderProducts.map(item=>'<div class="order-item" data-product="'+item.name+'"><div><b>'+item.label+'</b><small>'+item.price+'</small></div><div class="order-qty"><button type="button" data-cart-action="minus" aria-label="Kurangi '+item.label+'">−</button><output>0</output><button type="button" data-cart-action="plus" aria-label="Tambah '+item.label+'">+</button></div></div>').join('')+'</div><label>ID game penerima<input id="orderGameId" type="text" minlength="3" placeholder="Masukkan ID game" required></label><label>Nickname di game<input id="orderNickname" type="text" minlength="2" placeholder="Masukkan nickname game" required></label><label>Metode pembayaran<select id="orderPayment" required><option value="">Pilih metode pembayaran</option><option>Transfer Bank</option><option>DANA</option><option>OVO</option><option>GoPay</option><option>ShopeePay</option><option>LinkAja</option></select></label><div class="order-summary order-total"><span>Total harga</span><strong id="orderTotal">-</strong></div>';
@@ -432,7 +448,10 @@ window.location.href='https://web.whatsapp.com/send?phone=6288707646282&text='+e
     const warning=document.querySelector('[data-od-id="sell-minimum-warning"]');
     if(!amount)return;
     amount.min='1';amount.removeAttribute('max');amount.placeholder='Atur jumlah chip';
-    if(warning){warning.textContent='[INFO] Gunakan tombol - / + untuk mengatur jumlah chip';warning.setAttribute('aria-label','Atur jumlah chip dengan tombol kurang atau tambah')}
+    if(warning){
+  warning.textContent='⚠️ Jangan mudah tergiur rate tinggi. Pastikan transaksi dilakukan melalui Admin HGI Hub dan kontak resmi kami.';
+  warning.setAttribute('aria-label','Peringatan keamanan transaksi')
+}
     const stepper=document.createElement('div');stepper.className='sell-amount-stepper';amount.parentNode.insertBefore(stepper,amount);stepper.append(amount);
     const makeButton=(label,action)=>{const button=document.createElement('button');button.type='button';button.textContent=label;button.setAttribute('aria-label',action<0?'Kurangi jumlah chip':'Tambah jumlah chip');button.addEventListener('click',()=>{const current=Number(amount.value)||1;amount.value=Math.max(1,current+action);amount.dispatchEvent(new Event('input',{bubbles:true}))});return button};
     stepper.prepend(makeButton('−',-1));stepper.append(makeButton('+',1));
@@ -441,7 +460,7 @@ window.location.href='https://web.whatsapp.com/send?phone=6288707646282&text='+e
       const form=event.target,amountB=Number(form.amount.value),message=document.getElementById('sellMessage');
       if(!Number.isInteger(amountB)||amountB<1){message.textContent='Masukkan jumlah chip minimal 1B.';form.amount.focus();return}
       const text='[SELL] - HGI HUB\n\nHalo Admin HGI Hub\n\nMohon diproses penjualan chip.\n\n━━━━━━━━━━━━━━━━\n[DETAIL TRANSAKSI]\n━━━━━━━━━━━━━━━━\n\nKode Transaksi : #'+Math.random().toString(36).slice(2,8).toUpperCase()+'\nGame           : Higgs Games\nJumlah Chip    : '+amountB+'B\nHarga Jual     : Mohon konfirmasi admin\n\n━━━━━━━━━━━━━━━━\n[DATA PENJUAL]\n━━━━━━━━━━━━━━━━\n\nID Player         : '+form.senderId.value.trim()+'\n\n━━━━━━━━━━━━━━━━\n[PEMBAYARAN]\n━━━━━━━━━━━━━━━━\n\nBank / E-wallet: '+form.bank.value+'\nNomor Rekening : '+form.accountNumber.value.trim()+'\nAtas Nama      : '+form.accountName.value.trim()+'\n\n━━━━━━━━━━━━━━━━\n\nMohon dicek harga dan diproses. Terima kasih.\n\nHGI Hub - Layanan Jual Beli Chip Game';
-      message.textContent='Data penjualan siap dikirim ke WhatsApp.';window.location.href='https://wa.me/6288707646282?text='+encodeURIComponent(text);
+      message.textContent='Data penjualan siap dikirim ke WhatsApp.';window.location.href = whatsappLink(text);
     };
   })();
 </script>
@@ -456,8 +475,15 @@ window.location.href='https://web.whatsapp.com/send?phone=6288707646282&text='+e
   window.saveProfile=async function(event){event.preventDefault();const form=event.currentTarget;showMessage('profileMessage','Menyimpan pendaftaran…');try{const response=await fetch(api+'/register',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email:form.email.value.trim(),phone:form.phone.value.trim(),password:form.password.value})}),data=await response.json();if(!response.ok)throw new Error(data.message||'Pendaftaran gagal.');localStorage.setItem('hgiHubPendingRegistration',JSON.stringify({email:form.email.value.trim().toLowerCase(),phone:form.phone.value.trim(),password:form.password.value,code:data.devCode||''}));profileAuthView='verify';renderProfile()}catch(error){showMessage('profileMessage',error.message)}};
   window.verifyRegistration=async function(event){event.preventDefault();const pending=getPending();if(!pending)return setAuthView('register');showMessage('profileMessage','Memverifikasi akun…');try{const response=await fetch(api+'/verify',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email:pending.email,code:event.currentTarget.code.value.trim()})}),data=await response.json();if(!response.ok)throw new Error(data.message||'Verifikasi gagal.');localStorage.setItem('hgiHubProfile',JSON.stringify(data.user));localStorage.setItem('hgiHubSession',data.user.email);localStorage.removeItem('hgiHubPendingRegistration');renderProfile()}catch(error){showMessage('profileMessage',error.message)}};
   const slugFor={'100M Voucher HGI (HU)':'hu','500M Voucher HGI (KUCING)':'kucing','1B Voucher HGI (ZEUS)':'zeus'};
+  const whatsappLink = text => {
+  const encoded = encodeURIComponent(text);
+  const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+
+  return isMobile
+    ? 'https://wa.me/6288707646282?text=' + encoded
+    : 'https://web.whatsapp.com/send?phone=6288707646282&text=' + encoded;
+};
   
- const originalSell=window.submitSellForm;
 window.submitSellForm = function(event) {
   event.preventDefault();
 
@@ -465,8 +491,8 @@ window.submitSellForm = function(event) {
   const amountB = Number(form.amount.value);
   const message = document.getElementById('sellMessage');
 
-  if (!Number.isInteger(amountB) || amountB < 1 || amountB > 5) {
-    message.textContent = 'Masukkan jumlah chip 1 sampai 5B.';
+  if (!Number.isInteger(amountB) || amountB < 1) {
+  message.textContent = 'Masukkan jumlah chip minimal 1B.';
     form.amount.focus();
     return;
   }
