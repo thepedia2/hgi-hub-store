@@ -309,37 +309,28 @@ Total Bayar    : ${money(finalTotal+uniqueCode)}
 Mohon diproses. Terima kasih.`;
 
   message.textContent='Pesanan siap dikirim ke WhatsApp.';
-const whatsappText=
-  '🛒 [ORDER] - TOP UP HGI HUB\n\n'+
-  'Halo Admin HGI Hub\n\n'+
-  'Saya ingin melakukan transaksi TOP UP.\n\n'+
-  String.fromCodePoint(0x1F4CB)+' DETAIL TRANSAKSI\n'+
-  '━━━━━━━━━━━━━━━━\n\n'+
-  '```'+
-  'Kode Transaksi : #'+transactionCode()+'\n'+
-  'Game           : Higgs Games\n'+
-  'Produk         : '+productSummary(cart)+'\n'+
-  'Total          : '+totalLabel(cart,package17B)+'\n'+
-  'Harga Total    : '+money(finalTotal)+
-  '```\n\n'+
-  String.fromCodePoint(0x1F464)+' DATA PLAYER\n'+
-  '━━━━━━━━━━━━━━━━\n\n'+
-  '```'+
-  'ID Player      : '+gameId+'\n'+
-  'Nickname       : '+nickname+
-  '```\n\n'+
-  String.fromCodePoint(0x1F4B3)+' PEMBAYARAN\n'+
-  '━━━━━━━━━━━━━━━━\n\n'+
-  '```'+
-  'Metode         : '+payment+'\n'+
-  'Kode Unik      : '+uniqueCode+'\n'+
-  'Total Bayar    : '+money(finalTotal+uniqueCode)+
-  '```\n\n'+
-  '━━━━━━━━━━━━━━━━\n\n'+
-  'Mohon diproses. Terima kasih. '+
-  String.fromCodePoint(0x1F64F)+'\n\n'+
-  'HGI Hub - Layanan Jual Beli Chip Game';
-window.location.href='https://wa.me/6288707646282?text='+encodeURIComponent(whatsappText);
+const whatsappText =
+  String.fromCodePoint(0x1F6D2) + ' ORDER - [ HIGGS GAMES ISLAND ]\n' +
+  '━━━━━━━━━━━━━━━━━━━━\n\n' +
+
+  '```\n' +
+  String.fromCodePoint(0x26A1) + ' ID TRX    : #' + transactionCode() + '\n' +
+  String.fromCodePoint(0x1F48E) + ' PRODUK    : ' + productSummary(cart) + '\n' +
+  String.fromCodePoint(0x1F194) + ' ID PLAYER : ' + gameId + '\n' +
+  String.fromCodePoint(0x1F464) + ' NICKNAME  : ' + nickname + '\n' +
+  String.fromCodePoint(0x1F4B3) + ' BAYAR     : ' + payment + '\n' +
+  String.fromCodePoint(0x1F4B0) + ' TOTAL     : ' + money(finalTotal + uniqueCode) + '\n' +
+  String.fromCodePoint(0x1F511) + ' KODE UNIK : ' + uniqueCode + '\n' +
+  '```\n\n' +
+
+  '━━━━━━━━━━━━━━━━━━━━\n\n' +
+
+  String.fromCodePoint(0x1F550) + ' ' +
+  new Date().toLocaleDateString('id-ID') + '\n' +
+
+  String.fromCodePoint(0x1F680) +
+  ' Mohon segera diproses Admin!';
+window.location.href='https://web.whatsapp.com/send?phone=6288707646282&text='+encodeURIComponent(whatsappText);
 };
     window.submitSellForm=function(event){
       event.preventDefault();
@@ -450,7 +441,44 @@ window.location.href='https://web.whatsapp.com/send?phone=6288707646282&text='+e
   const slugFor={'100M Voucher HGI (HU)':'hu','500M Voucher HGI (KUCING)':'kucing','1B Voucher HGI (ZEUS)':'zeus'};
   
  const originalSell=window.submitSellForm;
-  window.submitSellForm=async function(event){event.preventDefault();const form=event.currentTarget,p=profile(),amountB=Number(form.amount.value);if(!p?.email||localStorage.getItem('hgiHubSession')!==p.email){showMessage('sellMessage','Login terlebih dahulu sebelum mengirim data penjualan.');openProfile('login');return}try{const response=await fetch(api+'/sell-orders',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email:p.email,amountB,senderId:form.senderId.value.trim(),bank:form.bank.value,accountNumber:form.accountNumber.value.trim(),accountName:form.accountName.value.trim()})}),data=await response.json();if(!response.ok)throw new Error(data.message||'Data penjualan gagal disimpan.');await originalSell(event)}catch(error){showMessage('sellMessage',error.message)}};
+window.submitSellForm = function(event) {
+  event.preventDefault();
+
+  const form = event.currentTarget;
+  const amountB = Number(form.amount.value);
+  const message = document.getElementById('sellMessage');
+
+  if (!Number.isInteger(amountB) || amountB < 1 || amountB > 5) {
+    message.textContent = 'Masukkan jumlah chip 1 sampai 5B.';
+    form.amount.focus();
+    return;
+  }
+
+  const transactionCode =
+    Math.random().toString(36).slice(2, 8).toUpperCase();
+
+  const whatsappText =
+  '💰 SELL - [ HIGGS GAMES ISLAND ]\n' +
+  '━━━━━━━━━━━━━━━━━━━━\n\n' +
+
+  '⚡ ID TRX     : #' + transactionCode + '\n' +
+  '📦 JUMLAH     : ' + amountB + 'B CHIP\n' +
+  '🆔 ID PLAYER  : ' + form.senderId.value.trim() + '\n' +
+  '👤 ATAS NAMA  : ' + form.accountName.value.trim() + '\n' +
+  '🏦 BANK       : ' + form.bank.value + '\n' +
+  '💳 REKENING   : ' + form.accountNumber.value.trim() + '\n' +
+
+  '\n━━━━━━━━━━━━━━━━━━━━\n\n' +
+
+  '🕐 TANGGAL    : ' +
+  new Date().toLocaleDateString('id-ID') + '\n' +
+
+  '🚀 STATUS     : Mohon segera diproses Admin!';
+
+  window.location.href =
+    'https://web.whatsapp.com/send?phone=6288707646282&text=' +
+    encodeURIComponent(whatsappText);
+};
 })();
 </script>
 </body></html>
