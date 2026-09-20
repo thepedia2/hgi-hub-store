@@ -143,6 +143,14 @@ Admin akan menanggapi pesan Anda untuk konfirmasi data, negosiasi harga, dan mel
         }
       };
       document.querySelectorAll('.card .secondary').forEach(button=>{button.textContent='Pesan Sekarang →';button.setAttribute('aria-label',button.getAttribute('aria-label')?.replace('Lihat detail','Pesan')||'Pesan produk')});
+      const whatsappLink = text => {
+  const encoded = encodeURIComponent(text);
+  const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+
+  return isMobile
+    ? 'https://wa.me/6288707646282?text=' + encoded
+    : 'https://web.whatsapp.com/send?phone=6288707646282&text=' + encoded;
+};
       window.submitProductOrder=function(){
         const gameId=document.getElementById('orderGameId')?.value.trim(),nickname=document.getElementById('orderNickname')?.value.trim(),payment=document.getElementById('orderPayment')?.value,name=window.hgiCurrentProduct,items=Object.entries(window.hgiOrderCart||{}).filter(([,quantity])=>quantity>0);
         const message=document.getElementById('modalCopy');
@@ -152,7 +160,8 @@ Admin akan menanggapi pesan Anda untuk konfirmasi data, negosiasi harga, dan mel
         const grandTotal=items.reduce((sum,[product,quantity])=>{const card=[...document.querySelectorAll('.card')].find(item=>item.querySelector('h3')?.textContent.trim()===product),price=card?.querySelector('.price strong')?.textContent.trim()||'',value=priceFor(product,quantity,price);return sum+(value||0)},0),finalTotal=is17BPackage(window.hgiOrderCart)?99000:grandTotal,text='Halo Admin HGI Hub, saya ingin order beberapa produk.\n\n'+lines+'\n\nTotal harga: '+(finalTotal?new Intl.NumberFormat('id-ID',{style:'currency',currency:'IDR',maximumFractionDigits:0}).format(finalTotal):'Dikonfirmasi admin')+'\nID game penerima: '+gameId+'\nNickname di game: '+nickname+'\nMetode pembayaran: '+payment+'\n\nMohon dibantu cek stok dan proses pembayaran.';
         message.textContent='Pesanan siap dikirim ke WhatsApp.';
 const whatsappText='```'+text+'```';
-window.location.href='https://web.whatsapp.com/send?phone=6288707646282&text='+encodeURIComponent(whatsappText);      };
+window.location.href = whatsappLink(whatsappText);
+};
     })();
   </script>
 
@@ -262,6 +271,14 @@ window.location.href='https://web.whatsapp.com/send?phone=6288707646282&text='+e
 const sendToAdmin=text=>{
   window.location.href='https://web.whatsapp.com/send?phone=6288707646282&text='+encodeURIComponent(whatsappText);
 };
+const whatsappLink = text => {
+  const encoded = encodeURIComponent(text);
+  const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+
+  return isMobile
+    ? 'https://wa.me/6288707646282?text=' + encoded
+    : 'https://web.whatsapp.com/send?phone=6288707646282&text=' + encoded;
+};
   window.submitProductOrder=function(){
   const gameId=document.getElementById('orderGameId')?.value.trim();
   const nickname=document.getElementById('orderNickname')?.value.trim();
@@ -330,7 +347,7 @@ const whatsappText =
 
   String.fromCodePoint(0x1F680) +
   ' Mohon segera diproses Admin!';
-window.location.href='https://web.whatsapp.com/send?phone=6288707646282&text='+encodeURIComponent(whatsappText);
+window.location.href = whatsappLink(whatsappText);
 };
     window.submitSellForm=function(event){
       event.preventDefault();
@@ -475,9 +492,7 @@ window.submitSellForm = function(event) {
 
   '🚀 STATUS     : Mohon segera diproses Admin!';
 
-  window.location.href =
-    'https://web.whatsapp.com/send?phone=6288707646282&text=' +
-    encodeURIComponent(whatsappText);
+  window.location.href = whatsappLink(whatsappText);
 };
 })();
 </script>
