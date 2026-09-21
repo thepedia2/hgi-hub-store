@@ -37,7 +37,7 @@
     .sell-copy h2{font-family:var(--display)}
     .sell-copy p{font-family:var(--body);font-weight:400;white-space:pre-line}
     .sell-note{font-weight:700;letter-spacing:.02em}
-    .sell-note:empty::after{content:"Minimal penjualan: 1B chip"}
+    .sell-note:empty::after{content:"Minimal penjualan: 1B "}
     .price{color:var(--fg)!important}
     .sell-form input:invalid:not(:placeholder-shown),
 .sell-form select:invalid:not(:focus){
@@ -73,12 +73,133 @@
     .hero-art{width:100%!important;min-width:0}
     .hero-art .banner-slider{width:100%;max-width:none}
   }
+
+  .demo-activity{
+  display:grid;
+  gap:12px;
+  margin-top:24px;
+  padding:14px 16px;
+  border:1px solid var(--border);
+  border-radius:12px;
+  background:oklch(14% .045 164 / .92);
+}
+
+.demo-activity-header{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  padding-bottom:10px;
+  border-bottom:1px solid var(--border);
+}
+
+.demo-activity-title{
+  display:flex;
+  align-items:center;
+  gap:7px;
+  color:var(--accent);
+  font-size:11px;
+  font-weight:900;
+  letter-spacing:.08em;
+}
+
+.demo-activity-more{
+  border:0;
+  background:none;
+  color:var(--muted);
+  font-size:10px;
+  font-weight:700;
+  padding:0;
+  cursor:pointer;
+}
+
+.demo-activity-more:hover{
+  color:var(--accent);
+}
+
+.demo-activity-order{
+  display:grid;
+  grid-template-columns:32px 1fr auto auto;
+  align-items:center;
+  gap:10px;
+}
+
+.demo-activity-avatar{
+  width:32px;
+  height:32px;
+  display:grid;
+  place-items:center;
+  border:1px solid oklch(55% .16 164 / .45);
+  border-radius:50%;
+  background:var(--surface-2);
+  font-size:15px;
+}
+
+.demo-activity-copy{
+  min-width:0;
+}
+
+.demo-activity-copy strong{
+  display:block;
+  color:var(--fg);
+  font-size:12px;
+  font-weight:900;
+}
+
+.demo-activity-copy span{
+  display:block;
+  margin-top:2px;
+  color:var(--muted);
+  font-size:10px;
+}
+
+.demo-activity-price{
+  color:var(--accent);
+  font-size:12px;
+  font-weight:900;
+  white-space:nowrap;
+}
+
+.demo-activity-time{
+  color:var(--muted);
+  font-size:10px;
+  white-space:nowrap;
+}
+
+.demo-activity-dot{
+  width:7px;
+  height:7px;
+  border-radius:50%;
+  background:var(--accent);
+  box-shadow:0 0 10px var(--accent);
+}
+
+@media(max-width:480px){
+  .demo-activity{
+    padding:12px;
+  }
+
+  .demo-activity-order{
+    grid-template-columns:30px 1fr auto;
+  }
+
+  .demo-activity-time{
+    grid-column:2 / -1;
+    font-size:9px;
+  }
+
+  .demo-activity-price{
+    font-size:11px;
+  }
+}
 </style>
+
 </head>
 <body>
   <header class="topbar shell" data-od-id="site-header"><div class="brand" data-od-id="brand"><div class="brand-mark"><img src="profile.png.png" width="1254" height="1254" alt="Logo HGI Hub"></div><div><div class="eyebrow">Halo, member!</div><div class="brand-name">HGI Hub</div></div></div><div class="status"><span style="transform: translate(3px, 0px);"><i class="dot"></i> Online</span><button class="avatar-trigger" data-od-id="profile-trigger" aria-label="Buka profil pengguna" onclick="openProfile()">◌</button></div></header>
   <main class="shell">
-    <section class="hero" data-od-id="hero" style="transform: translate(-4px, 4px); margin-top: 33px;"><div><div class="eyebrow">Marketplace chip terpercaya</div><h1>Jual &amp; beli<br><em>chip game.</em></h1><p style="font-family: Helvetica, Arial, sans-serif; font-size: 14px; font-weight: 300; border-width: 0px; width: 363.125px; height: 44px;">Toko khusus chip HGI dengan sistem kartu kirim. Transaksi cepat, aman, dan terpercaya. Mudah pesan, nyaman bertransaksi, selalu siap melayani.</p><div class="hero-actions"><a class="primary" data-od-id="hero-browse" href="#products">Lihat Produk</a><button class="secondary" data-od-id="hero-help" onclick="openModal('Pusat Bantuan')"><img class="wa-icon" src="whatsapp.png" width="64" height="64" alt="">Tanya Admin →</button></div></div><div class="hero-art" data-image-slot="hero" data-image-source="higgs-games.png:user-provided-asset" aria-label="Logo Higgs Games" style="transform: translate(69px, 263px); font-size: 14px; font-weight: 500; border-radius: 0px; width: 276.875px; height: 116.297px; margin: 1px; padding-top: 1px;"><div class="chip-orbit"><img class="game-logo" src="higgs-games.png" width="1254" height="1254" alt="Logo Higgs Games"></div><div class="float-badge"><b>Transaksi aman</b><span>Ready setiap hari · 24/7</span></div></div></section>
+    <section class="hero" data-od-id="hero" style="transform: translate(-4px, 4px); margin-top: 33px;"><div><div class="eyebrow"><p className="font-bold"></p>Top Up Game HGI</div><h1>Top Up Game HGI<br><em>kebutuhan game dengan mudah.</em></h1><p style="font-family: Helvetica, Arial, sans-serif; font-size: 14px; font-weight: 300; border-width: 0px; width: 363.125px; height: 44px;">Top Up Game HGI
+Pilih produk, tentukan jumlah, dan pesan dengan mudah melalui WhatsApp. Proses cepat dengan layanan yang responsif.</p><div class="hero-actions"><a class="primary" data-od-id="hero-browse" href="#products">Lihat Produk</a><button class="secondary" data-od-id="hero-help" onclick="openModal('Pusat Bantuan')"><img class="wa-icon" src="whatsapp.png" width="64" height="64" alt="">Tanya Admin →</button></div></div><div class="hero-art" data-image-slot="hero" data-image-source="higgs-games.png:user-provided-asset" aria-label="Logo Higgs Games" style="transform: translate(69px, 263px); font-size: 14px; font-weight: 500; border-radius: 0px; width: 276.875px; height: 116.297px; margin: 1px; padding-top: 1px;"><div class="chip-orbit"><img class="game-logo" src="higgs-games.png" width="1254" height="1254" alt="Logo Higgs Games"></div><div class="float-badge"><b>Transaksi aman</b><span>Ready setiap hari · 24/7</span></div></div></section>
     <div class="search-row" data-od-id="search-area" style="transform: translate(-1px, 22px);"><input id="search" class="search" aria-label="Cari produk" placeholder="Cari chip, nominal, atau toko..." oninput="filterProducts(this.value)"><button class="primary" data-od-id="search-button" onclick="filterProducts(document.getElementById('search').value)">Cari</button></div>
     <section class="section" data-od-id="categories"><div class="section-head"><div><div class="eyebrow" style="transform: translate(15px, -1px);">Jelajahi cepat</div><h2 class="section-title" style="transform: translate(10px, -4px);">Kategori populer</h2></div><span class="section-note">4 pilihan tersedia</span></div><div class="chips"><button class="pill active" onclick="setCategory(this,'all')">Semua Produk</button><button class="pill" onclick="setCategory(this,'chip')">Chip HGI</button><button class="pill" onclick="setCategory(this,'voucher')">Bundling</button><button class="pill" onclick="setCategory(this,'seller')">Lainnya</button></div></section>
     <section class="section" id="products" data-od-id="products"><div class="section-head"><div><div class="eyebrow">Stok terbaru</div><h2 class="section-title">Pilih kebutuhanmu</h2></div><span id="resultCount" class="section-note" aria-live="polite">4 produk</span></div><div class="grid" id="productGrid">
@@ -148,7 +269,107 @@ const orderProducts =
           builder.className='order-builder';
           builder.innerHTML='<div class="order-catalog" aria-label="Pilih produk order">'+orderProducts.map(item=>'<div class="order-item" data-product="'+item.name+'"><div><b>'+item.label+'</b><small>'+item.price+'</small></div><div class="order-qty"><button type="button" data-cart-action="minus" aria-label="Kurangi '+item.label+'">−</button><output>0</output><button type="button" data-cart-action="plus" aria-label="Tambah '+item.label+'">+</button></div></div>').join('')+'</div><label>ID game penerima<input id="orderGameId" type="text" minlength="3" placeholder="Masukkan ID game" required></label><label>Nickname di game<input id="orderNickname" type="text" minlength="2" placeholder="Masukkan nickname game" required></label><label>Metode pembayaran<select id="orderPayment" required><option value="">Pilih metode pembayaran</option><option>Transfer Bank</option><option>DANA</option><option>OVO</option><option>GoPay</option><option>ShopeePay</option><option>LinkAja</option></select></label><div class="order-summary order-total"><span>Total harga</span><strong id="orderTotal">-</strong></div>';
           modalCopy.insertAdjacentElement('afterend',builder);
-          const totalOutput=document.getElementById('orderTotal'),money=value=>new Intl.NumberFormat('id-ID',{style:'currency',currency:'IDR',maximumFractionDigits:0}).format(value),updateCart=()=>{let total=0;builder.querySelectorAll('.order-item').forEach(item=>{const product=item.dataset.product,quantity=window.hgiOrderCart[product]||0,itemPrice=priceFor(product,quantity,orderProducts.find(p=>p.name===product).price)||0;item.querySelector('output').textContent=quantity;item.classList.toggle('active',quantity>0);total+=itemPrice});if(is17BPackage(window.hgiOrderCart))total=99000;totalOutput.textContent=total?money(total):'Pilih produk'};builder.querySelectorAll('[data-cart-action]').forEach(button=>button.addEventListener('click',()=>{const product=button.closest('.order-item').dataset.product,current=window.hgiOrderCart[product]||0,max=maxQuantityFor(product);window.hgiOrderCart[product]=button.dataset.cartAction==='plus'?Math.min(max,current+1):Math.max(0,current-1);updateCart()}));updateCart();
+          const totalOutput=document.getElementById('orderTotal');
+const money=value=>new Intl.NumberFormat('id-ID',{
+  style:'currency',
+  currency:'IDR',
+  maximumFractionDigits:0
+}).format(value);
+
+const updateCart=()=>{
+  let total=0;
+
+  builder.querySelectorAll('.order-item').forEach(item=>{
+    const product=item.dataset.product;
+    const quantity=window.hgiOrderCart[product]||0;
+
+    item.querySelector('output').textContent=quantity;
+    item.classList.toggle('active',quantity>0);
+  });
+
+  const totalM=
+    (window.hgiOrderCart['100M Voucher HGI (HU)']||0)*100+
+    (window.hgiOrderCart['500M Voucher HGI (KUCING)']||0)*500+
+    (window.hgiOrderCart['1B Voucher HGI (ZEUS)']||0)*1000;
+
+  const priceTable={
+  100:8000,
+  200:15000,
+  300:20000,
+  400:25000,
+  500:30000,
+  600:35000,
+  700:41000,
+  800:47000,
+  900:52000,
+  1000:58000,
+  1100:64000,
+  1200:70000,
+  1300:76000,
+  1400:82000,
+  1500:88000,
+  1600:93000,
+  1700:99000,
+  1800:106000,
+  1900:110000,
+  2000:116000,
+  2100:124000,
+  2200:130000,
+  2300:136000,
+  2400:142000,
+  2500:146000,
+  3000:174000,
+  3500:204000,
+  4000:232000,
+  5000:290000,
+  5500:320000,
+  6000:348000,
+  7000:406000,
+  8000:464000,
+  9000:522000,
+  10000:580000
+};
+
+  if(window.hgiCurrentProduct==='100M-10B++'){
+    total=priceTable[totalM]||0;
+  }else{
+    builder.querySelectorAll('.order-item').forEach(item=>{
+      const product=item.dataset.product;
+      const quantity=window.hgiOrderCart[product]||0;
+
+      const itemPrice=priceFor(
+        product,
+        quantity,
+        orderProducts.find(p=>p.name===product).price
+      )||0;
+
+      total+=itemPrice;
+    });
+
+    if(is17BPackage(window.hgiOrderCart)){
+      total=99000;
+    }
+  }
+
+  totalOutput.textContent=total?money(total):'Pilih produk';
+};
+
+builder.querySelectorAll('[data-cart-action]').forEach(button=>{
+  button.addEventListener('click',()=>{
+    const product=button.closest('.order-item').dataset.product;
+    const current=window.hgiOrderCart[product]||0;
+    const max=maxQuantityFor(product);
+
+    window.hgiOrderCart[product]=
+      button.dataset.cartAction==='plus'
+        ? Math.min(max,current+1)
+        : Math.max(0,current-1);
+
+    updateCart();
+  });
+});
+
+updateCart();
           modalCopy.textContent='Pilih quantity yang ingin dipesan. Admin akan mengonfirmasi stok dan total akhir melalui WhatsApp.';
           primary.textContent='Kirim Pesanan ke WhatsApp';
           primary.setAttribute('onclick','submitProductOrder()');
@@ -182,13 +403,66 @@ window.location.href = whatsappLink(whatsappText);
   </script>
 
   <script>
-    (function(){
-      const categorySection=document.querySelector('[data-od-id="categories"]');if(!categorySection)return;
-      const items=[['Raka','1 HU','baru saja'],['Dina','1 Kucing','2 menit lalu'],['Bayu','1 Zeus','4 menit lalu'],['Salsa','1 HU + 1 Kucing','6 menit lalu']];let index=0;
-      const panel=document.createElement('div');panel.className='demo-activity';panel.setAttribute('data-od-id','demo-live-orders');panel.setAttribute('role','status');panel.setAttribute('aria-live','polite');panel.innerHTML='<div class="demo-activity-badge"><span class="demo-activity-dot"></span>Aktivitas preview</div><div class="demo-activity-copy"></div><div class="demo-activity-time"></div>';categorySection.appendChild(panel);
-      const render=()=>{const item=items[index%items.length];panel.querySelector('.demo-activity-copy').innerHTML='<strong>'+item[0]+' memesan '+item[1]+'</strong><span>Contoh aktivitas untuk tampilan toko</span>';panel.querySelector('.demo-activity-time').textContent=item[2];index++};render()
-    })();
-  </script>
+  (function(){
+    const categorySection = document.querySelector('[data-od-id="categories"]');
+    if(!categorySection) return;
+
+    const items = [
+      ['**14**','1 HU','Rp8.000','baru saja'],
+      ['Din*','1 Kucing','Rp30.000','1 menit lalu'],
+      ['B**u','1 Zeus','Rp58.000','2 menit lalu'],
+      ['Sa*s*','1 HU + 1 Kucing','Rp35.000','3 menit lalu'],
+      ['R**i','1 Zeus + 1 Kucing','Rp88.000','4 menit lalu'],
+      ['9987***','2 HU + 1 Kucing','Rp47.000','5 menit lalu'],
+      ['t**an','1 HU + 1 Zeus','Rp66.000','6 menit lalu']
+      ['t**an','1 Zeus + 4 HU ','Rp82.000','1 menit lalu']
+    ];
+
+    let index = 0;
+
+    const panel = document.createElement('div');
+    panel.className = 'demo-activity';
+    panel.setAttribute('data-od-id','demo-live-orders');
+    panel.setAttribute('role','status');
+    panel.setAttribute('aria-live','polite');
+
+    panel.innerHTML =
+  '<div class="demo-activity-header">' +
+    '<div class="demo-activity-title">' +
+      '<span class="demo-activity-dot"></span>' +
+      'PESANAN TERBARU' +
+    '</div>' +
+    '<button type="button" class="demo-activity-more">Lihat semua</button>' +
+  '</div>' +
+
+  '<div class="demo-activity-order">' +
+    '<div class="demo-activity-avatar">👤</div>' +
+    '<div class="demo-activity-copy"></div>' +
+    '<div class="demo-activity-price"></div>' +
+    '<div class="demo-activity-time"></div>' +
+  '</div>';
+
+    categorySection.appendChild(panel);
+
+    const render = () => {
+  const item = items[index % items.length];
+
+  panel.querySelector('.demo-activity-copy').innerHTML =
+    '<strong>' + item[0] + '</strong>' +
+    '<span>memesan ' + item[1] + '</span>';
+
+  panel.querySelector('.demo-activity-price').textContent = item[2];
+
+  panel.querySelector('.demo-activity-time').textContent = item[3];
+
+  index++;
+};
+
+    render();
+    setInterval(render, 5000);
+
+  })();
+</script>
   <script>
     (function(){const profileButton=document.querySelector('.avatar-trigger');if(profileButton)profileButton.innerHTML='<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="12" cy="8" r="3.2"></circle><path d="M5.5 20c.7-3.5 3-5.3 6.5-5.3s5.8 1.8 6.5 5.3"></path></svg>'})();
   </script>
@@ -313,12 +587,77 @@ const whatsappLink = text => {
     return;
   }
 
-  const package17B=cart['100M Voucher HGI (HU)']===2&&cart['500M Voucher HGI (KUCING)']===1&&cart['1B Voucher HGI (ZEUS)']===1;
+ const totalM =
+  (cart['100M Voucher HGI (HU)'] || 0) * 100 +
+  (cart['500M Voucher HGI (KUCING)'] || 0) * 500 +
+  (cart['1B Voucher HGI (ZEUS)'] || 0) * 1000;
 
-  const priceForOrder=name=>name.includes('(HU)')?[0,8000,15000,20000,25000,30000][cart[name]]||0:name.includes('(KUCING)')&&!name.includes('ZEUS')?[0,30000,58000][cart[name]]||0:(Number(([...document.querySelectorAll('.card')].find(card=>card.querySelector('h3')?.textContent.trim()===name)?.querySelector('.price strong')?.textContent||'').replace(/\D/g,''))||0)*cart[name];
+const package17B =
+  cart['100M Voucher HGI (HU)'] === 2 &&
+  cart['500M Voucher HGI (KUCING)'] === 1 &&
+  cart['1B Voucher HGI (ZEUS)'] === 1;
 
-  const finalTotal=package17B?99000:items.reduce((sum,[product])=>sum+priceForOrder(product),0);
-  const uniqueCode=Math.floor(10+Math.random()*90);
+const priceTable = {
+  100: 8000,
+  200: 15000,
+  300: 20000,
+  400: 25000,
+  500: 30000,
+  600: 35000,
+  700: 41000,
+  800: 47000,
+  900: 52000,
+  1000: 58000,
+  1100: 64000,
+  1200: 70000,
+  1300: 76000,
+  1400: 82000,
+  1500: 88000,
+  1600: 93000,
+  1700: 99000,
+  1800: 106000,
+  1900: 110000,
+  2000: 116000,
+  2100: 124000,
+  2200: 130000,
+  2300: 136000,
+  2400: 142000,
+  2500: 146000,
+  3000: 174000,
+  3500: 204000,
+  4000: 232000,
+  5000: 290000,
+  6000: 348000,
+  7000: 406000,
+  8000: 464000,
+  9000: 522000,
+  10000: 580000
+};
+
+const priceForOrder = name =>
+  name.includes('(HU)')
+    ? [0,8000,15000,20000,25000,30000][cart[name]] || 0
+    : name.includes('(KUCING)') && !name.includes('ZEUS')
+      ? [0,30000,58000][cart[name]] || 0
+      : (Number(
+          ([...document.querySelectorAll('.card')]
+            .find(card => card.querySelector('h3')?.textContent.trim() === name)
+            ?.querySelector('.price strong')?.textContent || '')
+            .replace(/\D/g,'')
+        ) || 0) * cart[name];
+
+const finalTotal =
+  window.hgiCurrentProduct === '100M-10B++'
+    ? (priceTable[totalM] || 0)
+    : package17B
+      ? 99000
+      : items.reduce(
+          (sum,[product]) => sum + priceForOrder(product),
+          0
+        );
+
+const uniqueCode = Math.floor(10 + Math.random() * 90);
+
 
   const text=`Kode Transaksi : #${transactionCode()}
 Game           : Higgs Games
@@ -346,19 +685,17 @@ const whatsappText =
   String.fromCodePoint(0x1F6D2) + ' ORDER - [ HIGGS GAMES ISLAND ]\n' +
   '━━━━━━━━━━━━━━━━━━━━\n\n' +
 
-  '```\n' +
-  String.fromCodePoint(0x26A1) + ' ID TRX    : #' + transactionCode() + '\n' +
-  String.fromCodePoint(0x1F48E) + ' PRODUK    : ' + productSummary(cart) + '\n' +
-  String.fromCodePoint(0x1F194) + ' ID PLAYER : ' + gameId + '\n' +
-  String.fromCodePoint(0x1F464) + ' NICKNAME  : ' + nickname + '\n' +
-  String.fromCodePoint(0x1F4B3) + ' BAYAR     : ' + payment + '\n' +
-  String.fromCodePoint(0x1F4B0) + ' TOTAL     : ' + money(finalTotal + uniqueCode) + '\n' +
-  String.fromCodePoint(0x1F511) + ' KODE UNIK : ' + uniqueCode + '\n' +
-  '```\n\n' +
+  '*' + String.fromCodePoint(0x26A1) + ' ID TRX    :* #' + transactionCode() + '\n' +
+  '*' + String.fromCodePoint(0x1F48E) + ' PRODUK    :* ' + totalLabel(cart,package17B) + ' (' + productSummary(cart) + ')\n' +
+  '*' + String.fromCodePoint(0x1F194) + ' ID PLAYER :* `' + gameId + '`\n' +
+  '*' + String.fromCodePoint(0x1F464) + ' NICKNAME  :* ' + nickname + '\n' +
+  '*' + String.fromCodePoint(0x1F4B3) + ' BAYAR     :* ' + payment + '\n' +
+  '*' + String.fromCodePoint(0x1F4B0) + ' TOTAL     :* ' + money(finalTotal + uniqueCode) + '\n' +
+  '*' + String.fromCodePoint(0x1F511) + ' KODE UNIK :* ' + uniqueCode + '\n' +
 
-  '━━━━━━━━━━━━━━━━━━━━\n\n' +
+  '\n━━━━━━━━━━━━━━━━━━━━\n\n' +
 
-  String.fromCodePoint(0x1F550) + ' ' +
+  '*' + String.fromCodePoint(0x1F550) + ' TANGGAL    :* ' +
   new Date().toLocaleDateString('id-ID') + '\n' +
 
   String.fromCodePoint(0x1F680) +
@@ -424,12 +761,12 @@ window.location.href='https://web.whatsapp.com/send?phone=6288707646282&text='+e
     const amount=document.querySelector('.sell-form input[name="amount"]');
     const warning=document.querySelector('[data-od-id="sell-minimum-warning"]');
     if(amount){amount.min='10';amount.removeAttribute('max');amount.placeholder='Ketik jumlah 10B atau lebih'}
-    if(warning){warning.textContent='[PERHATIAN] Minimal penjualan: 10B chip';warning.setAttribute('aria-label','Peringatan minimal penjualan sepuluh B chip')}
+    if(warning){warning.textContent='[PERHATIAN] Minimal penjualan: 10B ';warning.setAttribute('aria-label','Peringatan minimal penjualan 1 B ')}
     window.submitSellForm=function(event){
       event.preventDefault();
       const form=event.target,amountB=Number(form.amount.value),message=document.getElementById('sellMessage');
-      if(!Number.isInteger(amountB)||amountB<10){message.textContent='Jumlah penjualan minimal 10B chip.';form.amount.focus();return}
-      const text='[SELL] - HGI HUB\n\nHalo Admin HGI Hub\n\nMohon diproses penjualan chip.\n\n━━━━━━━━━━━━━━━━\n[DETAIL TRANSAKSI]\n━━━━━━━━━━━━━━━━\n\nKode Transaksi : #'+Math.random().toString(36).slice(2,8).toUpperCase()+'\nGame           : Higgs Games\nJumlah Chip    : '+amountB+'B\nHarga Jual     : Mohon konfirmasi admin\n\n━━━━━━━━━━━━━━━━\n[DATA PENJUAL]\n━━━━━━━━━━━━━━━━\n\nID Player         : '+form.senderId.value.trim()+'\n\n━━━━━━━━━━━━━━━━\n[PEMBAYARAN]\n━━━━━━━━━━━━━━━━\n\nBank / E-wallet: '+form.bank.value+'\nNomor Rekening : '+form.accountNumber.value.trim()+'\nAtas Nama      : '+form.accountName.value.trim()+'\n\n━━━━━━━━━━━━━━━━\n\nMohon dicek harga dan diproses. Terima kasih.\n\nHGI Hub - Layanan Jual Beli Chip Game';
+      if(!Number.isInteger(amountB)||amountB<10){message.textContent='Jumlah penjualan minimal 10B .';form.amount.focus();return}
+      const text='[SELL] - HGI HUB\n\nHalo Admin HGI Hub\n\nMohon diproses penjualan voucher.\n\n━━━━━━━━━━━━━━━━\n[DETAIL TRANSAKSI]\n━━━━━━━━━━━━━━━━\n\nKode Transaksi : #'+Math.random().toString(36).slice(2,8).toUpperCase()+'\nGame           : Higgs Games\nJumlah Kartu    : '+amountB+'B\nHarga Jual     : Mohon konfirmasi admin\n\n━━━━━━━━━━━━━━━━\n[DATA PENJUAL]\n━━━━━━━━━━━━━━━━\n\nID Player         : '+form.senderId.value.trim()+'\n\n━━━━━━━━━━━━━━━━\n[PEMBAYARAN]\n━━━━━━━━━━━━━━━━\n\nBank / E-wallet: '+form.bank.value+'\nNomor Rekening : '+form.accountNumber.value.trim()+'\nAtas Nama      : '+form.accountName.value.trim()+'\n\n━━━━━━━━━━━━━━━━\n\nMohon dicek harga dan diproses. Terima kasih.\n\nHGI Hub - Layanan Top Up Game';
       message.textContent='Data penjualan siap dikirim ke WhatsApp.';
 window.location.href='https://web.whatsapp.com/send?phone=6288707646282&text='+encodeURIComponent(whatsappText);    };
   })();
@@ -458,8 +795,8 @@ window.location.href='https://web.whatsapp.com/send?phone=6288707646282&text='+e
     window.submitSellForm=function(event){
       event.preventDefault();
       const form=event.target,amountB=Number(form.amount.value),message=document.getElementById('sellMessage');
-      if(!Number.isInteger(amountB)||amountB<1){message.textContent='Masukkan jumlah chip minimal 1B.';form.amount.focus();return}
-      const text='[SELL] - HGI HUB\n\nHalo Admin HGI Hub\n\nMohon diproses penjualan chip.\n\n━━━━━━━━━━━━━━━━\n[DETAIL TRANSAKSI]\n━━━━━━━━━━━━━━━━\n\nKode Transaksi : #'+Math.random().toString(36).slice(2,8).toUpperCase()+'\nGame           : Higgs Games\nJumlah Chip    : '+amountB+'B\nHarga Jual     : Mohon konfirmasi admin\n\n━━━━━━━━━━━━━━━━\n[DATA PENJUAL]\n━━━━━━━━━━━━━━━━\n\nID Player         : '+form.senderId.value.trim()+'\n\n━━━━━━━━━━━━━━━━\n[PEMBAYARAN]\n━━━━━━━━━━━━━━━━\n\nBank / E-wallet: '+form.bank.value+'\nNomor Rekening : '+form.accountNumber.value.trim()+'\nAtas Nama      : '+form.accountName.value.trim()+'\n\n━━━━━━━━━━━━━━━━\n\nMohon dicek harga dan diproses. Terima kasih.\n\nHGI Hub - Layanan Jual Beli Chip Game';
+      if(!Number.isInteger(amountB)||amountB<1){message.textContent='Masukkan jumlah minimal 1B.';form.amount.focus();return}
+      const text='[SELL] - HGI HUB\n\nHalo Admin HGI Hub\n\nMohon diproses penjualan .\n\n━━━━━━━━━━━━━━━━\n[DETAIL TRANSAKSI]\n━━━━━━━━━━━━━━━━\n\nKode Transaksi : #'+Math.random().toString(36).slice(2,8).toUpperCase()+'\nGame           : HGI\nJumlah    : '+amountB+'B\nHarga Jual     : Mohon konfirmasi admin\n\n━━━━━━━━━━━━━━━━\n[DATA PENJUAL]\n━━━━━━━━━━━━━━━━\n\nID Player         : '+form.senderId.value.trim()+'\n\n━━━━━━━━━━━━━━━━\n[PEMBAYARAN]\n━━━━━━━━━━━━━━━━\n\nBank / E-wallet: '+form.bank.value+'\nNomor Rekening : '+form.accountNumber.value.trim()+'\nAtas Nama      : '+form.accountName.value.trim()+'\n\n━━━━━━━━━━━━━━━━\n\nMohon dicek harga dan diproses. Terima kasih.\n\nHGI Hub - Layanan Top Up Game';
       message.textContent='Data penjualan siap dikirim ke WhatsApp.';window.location.href = whatsappLink(text);
     };
   })();
@@ -492,7 +829,7 @@ window.submitSellForm = function(event) {
   const message = document.getElementById('sellMessage');
 
   if (!Number.isInteger(amountB) || amountB < 1) {
-  message.textContent = 'Masukkan jumlah chip minimal 1B.';
+  message.textContent = 'Masukkan jumlah minimal 1B.';
     form.amount.focus();
     return;
   }
@@ -504,19 +841,19 @@ window.submitSellForm = function(event) {
   '💰 SELL - [ HIGGS GAMES ISLAND ]\n' +
   '━━━━━━━━━━━━━━━━━━━━\n\n' +
 
-  '⚡ ID TRX     : #' + transactionCode + '\n' +
-  '📦 JUMLAH     : ' + amountB + 'B CHIP\n' +
-  '🆔 ID PLAYER  : ' + form.senderId.value.trim() + '\n' +
-  '👤 ATAS NAMA  : ' + form.accountName.value.trim() + '\n' +
-  '🏦 BANK       : ' + form.bank.value + '\n' +
-  '💳 REKENING   : ' + form.accountNumber.value.trim() + '\n' +
+  '*⚡ ID TRX     :* #' + transactionCode + '\n' +
+  '*📦 JUMLAH     :* ' + amountB + ' B\n' +
+  '*🆔 ID PLAYER  :* `' + form.senderId.value.trim() + '`\n' +
+  '*👤 ATAS NAMA  :* ' + form.accountName.value.trim() + '\n' +
+  '*🏦 BANK       :* ' + form.bank.value + '\n' +
+  '*💳 REKENING   :* ' + form.accountNumber.value.trim() + '\n' +
 
   '\n━━━━━━━━━━━━━━━━━━━━\n\n' +
 
-  '🕐 TANGGAL    : ' +
+  '*🕐 TANGGAL    :* ' +
   new Date().toLocaleDateString('id-ID') + '\n' +
 
-  '🚀 STATUS     : Mohon segera diproses Admin!';
+  '🚀 Mohon segera diproses Admin!';
 
   window.location.href = whatsappLink(whatsappText);
 };
