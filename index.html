@@ -244,7 +244,7 @@ Pilih produk, tentukan jumlah, dan pesan dengan mudah melalui WhatsApp. Proses c
       const priceFor=(name,quantity,priceText)=>{if(name.includes('(HU)'))return [0,8000,15000,20000,25000,30000][quantity]||null;if(name.includes('(KUCING)')&&!name.includes('ZEUS'))return [0,30000,58000][quantity]||null;const unitPrice=Number(priceText.replace(/\D/g,''))||0;return unitPrice?unitPrice*quantity:null};
       const is17BPackage=cart=>cart['100M Voucher HGI (HU)']===2&&cart['500M Voucher HGI (KUCING)']===1&&cart['1B Voucher HGI (ZEUS)']===1;
       window.openModal=function(name){
-        const isProduct=[...document.querySelectorAll('.card h3')].some(title=>title.textContent.trim()===name);if(isProduct){let profile=null;try{profile=JSON.parse(localStorage.getItem('hgiHubProfile'))}catch(e){}const session=localStorage.getItem('hgiHubSession');if(!profile||profile.verified===false){window.hgiPendingOrder=name;openProfile('register');return}if(session!==profile.email){window.hgiPendingOrder=name;openProfile('login');return}}
+        // Guest checkout: product orders do not require login or registration.
         originalOpenModal(name);
         window.hgiCurrentProduct=name;
         const productCard=[...document.querySelectorAll('.card')].find(card=>card.querySelector('h3')?.textContent.trim()===name);
